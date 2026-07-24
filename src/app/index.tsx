@@ -1,32 +1,33 @@
-import { View, Text } from 'react-native'
+import {
+  Button,
+  Container,
+  Screen,
+  Stack,
+  Text,
+} from '@/components/ui'
 
 export default function HomeScreen() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 32,
-          fontWeight: '700',
-        }}
-      >
-        Uply
-      </Text>
+    <Screen>
+      <Container>
+        <Stack spacing="lg">
+          <Text variant="h1">Uply</Text>
 
-      <Text
-        style={{
-          marginTop: 8,
-          color: '#6B7280',
-        }}
-      >
-        Your money. Upgraded.
-      </Text>
-    </View>
+          <Button>Primary</Button>
+
+          <Button variant="secondary">
+            Secondary
+          </Button>
+
+          <Button variant="danger">
+            Danger
+          </Button>
+
+          <Button variant="ghost">
+            Ghost
+          </Button>
+        </Stack>
+      </Container>
+    </Screen>
   )
 }
