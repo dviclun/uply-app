@@ -3,7 +3,7 @@ import { ViewStyle } from 'react-native'
 import { radius } from '../radius'
 import { spacing } from '../spacing'
 import { tokens } from '../tokens'
-import { ButtonVariant, TextTone, TextVariant } from '../types'
+import { TextTone, TextVariant } from '../types'
 
 interface ButtonTextStyle {
   variant: TextVariant

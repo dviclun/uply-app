@@ -1,33 +1,37 @@
 import {
-  Button,
-  Container,
-  Screen,
-  Stack,
-  Text,
-} from '@/components/ui'
+  BalanceCard,
+  DashboardHeader,
+  InsightCard,
+  MonthlySummaryCard,
+  RecentTransactionsCard,
+  SavingGoalCard,
+} from "@/components/features/dashboard";
+import { Container, ScrollScreen, Stack } from "@/components/ui";
 
 export default function HomeScreen() {
   return (
-    <Screen>
+    <ScrollScreen>
       <Container>
-        <Stack spacing="lg">
-          <Text variant="h1">Uply</Text>
+        <Stack spacing="xl">
+          {/* Header */}
+          <DashboardHeader />
 
-          <Button>Primary</Button>
+          {/* Balance */}
+          <BalanceCard />
 
-          <Button variant="secondary">
-            Secondary
-          </Button>
+          {/* Insight */}
+          <InsightCard />
 
-          <Button variant="danger">
-            Danger
-          </Button>
+          {/* Monthly Summary */}
+          <MonthlySummaryCard />
 
-          <Button variant="ghost">
-            Ghost
-          </Button>
+          {/* Savings Goal */}
+          <SavingGoalCard />
+
+          {/* Recent Expenses */}
+          <RecentTransactionsCard />
         </Stack>
       </Container>
-    </Screen>
-  )
+    </ScrollScreen>
+  );
 }

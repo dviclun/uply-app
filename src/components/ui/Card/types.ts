@@ -1,12 +1,8 @@
 import { PropsWithChildren } from 'react'
 import { StyleProp, ViewProps, ViewStyle } from 'react-native'
 
-import { Spacing } from '@/theme/types'
-
-export interface ContainerProps
+export interface CardProps
   extends PropsWithChildren,
     Omit<ViewProps, 'style'> {
-  padding?: Spacing
-  paddingTop?: Spacing
   style?: StyleProp<ViewStyle>
 }

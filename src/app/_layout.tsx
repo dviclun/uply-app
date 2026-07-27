@@ -1,13 +1,12 @@
-import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
-
-import { useAppFonts } from '@/hooks/useFonts'
+import { useAppFonts } from "@/hooks";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 export default function RootLayout() {
-  const [fontsLoaded] = useAppFonts()
+  const [fontsLoaded] = useAppFonts();
 
   if (!fontsLoaded) {
-    return null
+    return null;
   }
 
   return (
@@ -15,5 +14,5 @@ export default function RootLayout() {
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }} />
     </>
-  )
+  );
 }

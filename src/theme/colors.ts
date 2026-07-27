@@ -7,7 +7,7 @@ export const colors = {
   danger: '#EF4444',
   warning: '#F59E0B',
 
-  background: '#F8FAFC',
+  background: '#F3F4F6',
   surface: '#FFFFFF',
   surfaceSecondary: '#F1F5F9',
 

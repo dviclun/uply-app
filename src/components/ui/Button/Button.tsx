@@ -1,13 +1,13 @@
-import { Pressable, StyleSheet } from 'react-native'
+import { Pressable, StyleSheet } from "react-native";
 
-import { Text } from '../Text'
-import { buttonStyles } from '@/theme/components/button'
+import { Text } from "../Text";
 
-import { ButtonProps } from './types'
+import { buttonStyles } from "@/theme";
+import { ButtonProps } from "./types";
 
 export function Button({
   children,
-  variant = 'primary',
+  variant = "primary",
   style,
   disabled,
   loading,
@@ -35,7 +35,7 @@ export function Button({
         {children}
       </Text>
     </Pressable>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-})
+});
