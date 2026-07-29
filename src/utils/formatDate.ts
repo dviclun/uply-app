@@ -34,3 +34,15 @@ export function formatDate(date: Date): string {
     ...(isCurrentYear ? {} : { year: "numeric" }),
   }).format(date);
 }
+
+function toDate(date: Date | string): Date {
+  return date instanceof Date ? date : new Date(date);
+}
+
+export function formatDateField(date: Date | string): string {
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(toDate(date));
+}

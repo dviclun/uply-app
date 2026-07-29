@@ -1,9 +1,10 @@
-import { TransactionItem } from "@/components/features/transactions/components/TransactionItem";
 import { Card, Stack, Text } from "@/components/ui";
-import { useTransactions } from "@/hooks";
+import { TransactionItem } from "@/features/transactions";
+
+import { useDashboardTransactions } from "@/hooks";
 
 export function RecentTransactionsCard() {
-  const transactions = useTransactions();
+  const { data: transactions = [] } = useDashboardTransactions();
   return (
     <Card>
       <Stack spacing="md">

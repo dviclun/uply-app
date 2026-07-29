@@ -1,14 +1,12 @@
-import {
-  BalanceCard,
-  DashboardHeader,
-  InsightCard,
-  MonthlySummaryCard,
-  RecentTransactionsCard,
-  SavingGoalCard,
-} from "@/components/features/dashboard";
 import { Container, ScrollScreen, Stack } from "@/components/ui";
+import { BalanceCard } from "../../components/BalanceCard";
+import { DashboardHeader } from "../../components/DashboardHeader";
+import { InsightCard } from "../../components/InsightCard";
+import { MonthlySummaryCard } from "../../components/MonthlySummaryCard";
+import { RecentTransactionsCard } from "../../components/RecentTransactionsCard";
+import { SavingGoalCard } from "../../components/SavingsGoalCard";
 
-export default function HomeScreen() {
+export function DashboardScreen() {
   return (
     <ScrollScreen>
       <Container>

@@ -1,18 +1,20 @@
-import { useAppFonts } from "@/hooks";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+
+import { useAppFonts } from "@/hooks";
+
+import { queryClient } from "@/lib/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 export default function RootLayout() {
-  const [fontsLoaded] = useAppFonts();
+  const [loaded] = useAppFonts();
 
-  if (!fontsLoaded) {
+  if (!loaded) {
     return null;
   }
 
   return (
-    <>
-      <StatusBar style="auto" />
+    <QueryClientProvider client={queryClient}>
       <Stack screenOptions={{ headerShown: false }} />
-    </>
+    </QueryClientProvider>
   );
 }

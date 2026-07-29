@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { Text } from "@/components/ui";
@@ -36,6 +37,7 @@ export function TransactionItem({
   return (
     <Pressable
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
+      onPress={() => router.push(`/transaction/${transaction.id}`)}
       {...props}
     >
       <View style={styles.left}>

@@ -1,19 +1,20 @@
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from "react-native";
 
-import { spacing } from '@/theme'
+import { spacing } from "@/theme";
 
-import { ContainerProps } from './types'
+import { ContainerProps } from "./types";
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
-})
+});
 
 export function Container({
   children,
-  padding = 'md',
-  paddingTop = 'lg',
+  padding = "md",
+  paddingTop = "lg",
+  flex = false,
   style,
   ...props
 }: ContainerProps) {
@@ -22,6 +23,7 @@ export function Container({
       style={[
         styles.container,
         {
+          flex: flex ? 1 : undefined,
           paddingHorizontal: spacing[padding],
           paddingTop: spacing[paddingTop],
         },
@@ -31,5 +33,5 @@ export function Container({
     >
       {children}
     </View>
-  )
+  );
 }

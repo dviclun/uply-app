@@ -1,39 +1,38 @@
-import { ViewStyle } from 'react-native'
+import { ViewStyle } from "react-native";
 
-import { radius } from '../radius'
-import { spacing } from '../spacing'
-import { tokens } from '../tokens'
-import { TextTone, TextVariant } from '../types'
+import { radius } from "../radius";
+import { spacing } from "../spacing";
+import { tokens } from "../tokens";
+import { TextTone, TextVariant } from "../types";
 
 interface ButtonTextStyle {
-  variant: TextVariant
+  variant: TextVariant;
 }
 
 interface ButtonVariantTextStyle {
-  tone: TextTone
+  tone: TextTone;
 }
 
 interface ButtonContainerStyle extends ViewStyle {}
 
 interface ButtonVariantStyle {
-  container: ButtonContainerStyle
-  text: ButtonVariantTextStyle
+  container: ButtonContainerStyle;
+  text: ButtonVariantTextStyle;
 }
 
 export const buttonStyles: {
   base: {
-    container: ButtonContainerStyle
-    text: ButtonTextStyle
-  }
-  primary: ButtonVariantStyle
-  secondary: ButtonVariantStyle
-  danger: ButtonVariantStyle
-  ghost: ButtonVariantStyle
+    container: ButtonContainerStyle;
+    text: ButtonTextStyle;
+  };
+  primary: ButtonVariantStyle;
+  secondary: ButtonVariantStyle;
+  danger: ButtonVariantStyle;
+  ghost: ButtonVariantStyle;
 } = {
   base: {
     container: {
-      alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: "center",
 
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
@@ -41,10 +40,11 @@ export const buttonStyles: {
       borderRadius: radius.md,
 
       minHeight: 48,
+      width: "100%",
     },
 
     text: {
-      variant: 'bodyMedium',
+      variant: "bodyMedium",
     },
   },
 
@@ -52,11 +52,11 @@ export const buttonStyles: {
     container: {
       backgroundColor: tokens.brand.primary,
       borderWidth: 0,
-      borderColor: 'transparent',
+      borderColor: "transparent",
     },
 
     text: {
-      tone: 'inverse',
+      tone: "inverse",
     },
   },
 
@@ -68,7 +68,7 @@ export const buttonStyles: {
     },
 
     text: {
-      tone: 'primary',
+      tone: "primary",
     },
   },
 
@@ -76,23 +76,23 @@ export const buttonStyles: {
     container: {
       backgroundColor: tokens.status.danger,
       borderWidth: 0,
-      borderColor: 'transparent',
+      borderColor: "transparent",
     },
 
     text: {
-      tone: 'inverse',
+      tone: "inverse",
     },
   },
 
   ghost: {
     container: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       borderWidth: 0,
-      borderColor: 'transparent',
+      borderColor: "transparent",
     },
 
     text: {
-      tone: 'primary',
+      tone: "primary",
     },
   },
-}
+};

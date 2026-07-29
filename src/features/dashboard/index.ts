@@ -4,4 +4,5 @@ export * from "./components/InsightCard";
 export * from "./components/MonthlySummaryCard";
 export * from "./components/RecentTransactionsCard";
 export * from "./components/SavingsGoalCard";
+export * from "./screens/DashboardScreen";
 

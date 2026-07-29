@@ -8,15 +8,13 @@ export const transactions: Transaction[] = [
     date: new Date("2026-07-27"),
     type: "expense",
   },
-
   {
     id: "2",
     title: "Nómina",
     amount: 2400,
-    date: new Date("2026-07-26"),
+    date: new Date("2026-07-25"),
     type: "income",
   },
-
   {
     id: "3",
     title: "Netflix",
@@ -26,9 +24,65 @@ export const transactions: Transaction[] = [
   },
   {
     id: "4",
-    title: "Disney",
+    title: "Disney+",
     amount: 9.99,
     date: new Date("2025-07-24"),
     type: "expense",
+  },
+  {
+    id: "5",
+    title: "Gasolinera Repsol",
+    amount: 67.85,
+    date: new Date("2026-07-21"),
+    type: "expense",
+  },
+  {
+    id: "6",
+    title: "Amazon",
+    amount: 34.95,
+    date: new Date("2026-07-20"),
+    type: "expense",
+  },
+  {
+    id: "7",
+    title: "Bizum recibido",
+    amount: 25,
+    date: new Date("2026-07-18"),
+    type: "income",
+  },
+  {
+    id: "8",
+    title: "Spotify",
+    amount: 10.99,
+    date: new Date("2026-07-15"),
+    type: "expense",
+  },
+  {
+    id: "9",
+    title: "Restaurante",
+    amount: 42.5,
+    date: new Date("2026-07-12"),
+    type: "expense",
+  },
+  {
+    id: "10",
+    title: "Farmacia",
+    amount: 18.75,
+    date: new Date("2026-07-08"),
+    type: "expense",
+  },
+  {
+    id: "11",
+    title: "Decathlon",
+    amount: 89.99,
+    date: new Date("2026-07-03"),
+    type: "expense",
+  },
+  {
+    id: "12",
+    title: "Intereses",
+    amount: 3.42,
+    date: new Date("2026-06-30"),
+    type: "income",
   },
 ];

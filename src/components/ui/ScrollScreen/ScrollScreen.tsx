@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
 
 export function ScrollScreen({ children, style }: ScrollScreenProps) {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={[styles.content, style]}
         keyboardShouldPersistTaps="handled"

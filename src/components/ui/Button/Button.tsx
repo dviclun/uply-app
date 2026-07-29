@@ -18,9 +18,9 @@ export function Button({
       disabled={disabled || loading}
       style={({ pressed }) => [
         styles.pressable,
+
         buttonStyles.base.container,
         buttonStyles[variant].container,
-
         pressed && styles.pressed,
         disabled && styles.disabled,
 
@@ -31,6 +31,7 @@ export function Button({
       <Text
         variant={buttonStyles.base.text.variant}
         tone={buttonStyles[variant].text.tone}
+        style={{ textAlign: "center" }}
       >
         {children}
       </Text>
