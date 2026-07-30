@@ -1,21 +1,66 @@
-import { transactions } from "@/data";
+import {
+  db,
+  toTransaction,
+  toTransactionRow,
+  TransactionRow,
+} from "@/lib/database";
 import type { Transaction } from "@/models";
 
 export class TransactionRepository {
-  getRecentTransactions(): Transaction[] {
-    return [...transactions];
+  async getRecentTransactions(): Promise<Transaction[]> {
+    const rows = await db.getAllAsync<TransactionRow>(`
+      SELECT *
+      FROM transactions
+      ORDER BY date DESC;
+    `);
+
+    return rows.map(toTransaction);
   }
 
-  getDashboardTransactions(): Transaction[] {
-    return transactions.slice(0, 3);
+  async getDashboardTransactions(): Promise<Transaction[]> {
+    const rows = await db.getAllAsync<TransactionRow>(`
+      SELECT *
+      FROM transactions
+      ORDER BY date DESC
+      LIMIT 3;
+    `);
+
+    return rows.map(toTransaction);
   }
 
-  getTransactionById(id: string) {
-    return transactions.find((transaction) => transaction.id === id);
+  async getTransactionById(id: string): Promise<Transaction | undefined> {
+    const row = await db.getFirstAsync<TransactionRow>(
+      `
+        SELECT *
+        FROM transactions
+        WHERE id = ?;
+      `,
+      id,
+    );
+
+    return row ? toTransaction(row) : undefined;
   }
 
   async create(transaction: Transaction): Promise<Transaction> {
-    transactions.unshift(transaction);
+    const row = toTransactionRow(transaction);
+
+    await db.runAsync(
+      `
+      INSERT INTO transactions (
+        id,
+        title,
+        amount,
+        type,
+        date
+      )
+      VALUES (?, ?, ?, ?, ?);
+    `,
+      row.id,
+      row.title,
+      row.amount,
+      row.type,
+      row.date,
+    );
 
     return transaction;
   }
