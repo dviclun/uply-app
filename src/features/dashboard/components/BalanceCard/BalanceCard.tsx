@@ -3,7 +3,12 @@ import { useDashboard } from "@/hooks";
 import { formatCurrency } from "@/utils";
 
 export function BalanceCard() {
-  const dashboard = useDashboard();
+  const { data: dashboard } = useDashboard();
+
+  if (!dashboard) {
+    return null;
+  }
+
   return (
     <Card>
       <Stack spacing="sm">

@@ -5,7 +5,11 @@ import { formatCurrency } from "@/utils";
 import { StyleSheet, View } from "react-native";
 
 export function MonthlySummaryCard() {
-  const dashboard = useDashboard();
+  const { data: dashboard } = useDashboard();
+
+  if (!dashboard) {
+    return null;
+  }
 
   const income = dashboard.monthlySummary.income;
 

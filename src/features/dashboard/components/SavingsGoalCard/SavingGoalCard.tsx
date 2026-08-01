@@ -3,7 +3,11 @@ import { useDashboard } from "@/hooks";
 import { formatCurrency } from "@/utils";
 
 export function SavingGoalCard() {
-  const dashboard = useDashboard();
+  const { data: dashboard } = useDashboard();
+
+  if (!dashboard) {
+    return null;
+  }
 
   const progress =
     (dashboard.savingsGoal.current / dashboard.savingsGoal.target) * 100;

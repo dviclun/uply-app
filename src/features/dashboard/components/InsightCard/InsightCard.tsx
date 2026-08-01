@@ -2,7 +2,12 @@ import { Card, Stack, Text } from "@/components/ui";
 import { useDashboard } from "@/hooks";
 
 export function InsightCard() {
-  const dashboard = useDashboard();
+  const { data: dashboard } = useDashboard();
+
+  if (!dashboard) {
+    return null;
+  }
+
   return (
     <Card>
       <Stack spacing="md">

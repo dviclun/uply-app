@@ -18,6 +18,10 @@ export function useCreateTransaction() {
         queryKey: queryKeys.transactions,
       });
 
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard,
+      });
+
       await queryClient.invalidateQueries({
         queryKey: queryKeys.dashboardTransactions,
       });
