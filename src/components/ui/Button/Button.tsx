@@ -8,6 +8,8 @@ import { ButtonProps } from "./types";
 export function Button({
   children,
   variant = "primary",
+  fullWidth = true,
+  flex,
   style,
   disabled,
   loading,
@@ -18,7 +20,8 @@ export function Button({
       disabled={disabled || loading}
       style={({ pressed }) => [
         styles.pressable,
-
+        fullWidth && styles.fullWidth,
+        flex !== undefined && { flex },
         buttonStyles.base.container,
         buttonStyles[variant].container,
         pressed && styles.pressed,
@@ -41,6 +44,10 @@ export function Button({
 
 const styles = StyleSheet.create({
   pressable: {},
+
+  fullWidth: {
+    width: "100%",
+  },
 
   pressed: {
     opacity: 0.9,

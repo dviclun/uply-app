@@ -1,12 +1,9 @@
-import {
-  Text as RNText,
-} from 'react-native'
+import { Text as RNText } from "react-native";
 
-import { textStyles, tokens } from '@/theme'
+import { textStyles, tokens } from "@/theme";
 
-import { TextProps } from './types'
-import { TextTone } from '@/theme/types'
-
+import { TextTone } from "@/theme/types";
+import { TextProps } from "./types";
 
 const toneMap: Record<TextTone, string> = {
   primary: tokens.text.primary,
@@ -15,11 +12,12 @@ const toneMap: Record<TextTone, string> = {
   success: tokens.status.success,
   danger: tokens.status.danger,
   warning: tokens.status.warning,
-}
+};
 
 export function Text({
-  variant = 'body',
-  tone = 'primary',
+  variant = "body",
+  tone = "primary",
+  textAlign,
   style,
   children,
   ...props
@@ -29,7 +27,8 @@ export function Text({
       style={[
         textStyles[variant],
         {
-            color: toneMap[tone],
+          color: toneMap[tone],
+          textAlign,
         },
         style,
       ]}
@@ -37,5 +36,5 @@ export function Text({
     >
       {children}
     </RNText>
-  )
+  );
 }

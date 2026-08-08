@@ -1,13 +1,16 @@
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet, View } from "react-native";
 
-import { spacing } from '@/theme'
+import { spacing } from "@/theme";
 
-import { StackProps } from './types'
+import { StackProps } from "./types";
 
 export function Stack({
   children,
-  spacing: spacingSize = 'md',
-  direction = 'column',
+  spacing: spacingSize = "md",
+  direction = "column",
+  justifyContent,
+  alignItems,
+  flex,
   style,
   ...props
 }: StackProps) {
@@ -18,6 +21,9 @@ export function Stack({
         {
           flexDirection: direction,
           gap: spacing[spacingSize],
+          justifyContent,
+          alignItems,
+          flex,
         },
         style,
       ]}
@@ -25,11 +31,11 @@ export function Stack({
     >
       {children}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
+    flexDirection: "column",
   },
-})
+});

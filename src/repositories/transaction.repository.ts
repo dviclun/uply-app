@@ -6,6 +6,11 @@ import {
 } from "@/lib/database";
 import type { Transaction } from "@/models";
 
+type TransactionSummaryRow = {
+  income: number | null;
+  expense: number | null;
+};
+
 export class TransactionRepository {
   async getRecentTransactions(): Promise<Transaction[]> {
     const rows = await db.getAllAsync<TransactionRow>(`
@@ -63,5 +68,30 @@ export class TransactionRepository {
     );
 
     return transaction;
+  }
+
+  async getSummary(
+    from: Date,
+    to: Date,
+  ): Promise<{
+    income: number;
+    expense: number;
+  }> {
+    const result = await db.getFirstAsync<TransactionSummaryRow>(
+      `
+      SELECT
+        SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS income,
+        SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
+      FROM transactions
+      WHERE date BETWEEN ? AND ?;
+    `,
+      from.toISOString(),
+      to.toISOString(),
+    );
+
+    return {
+      income: result?.income ?? 0,
+      expense: result?.expense ?? 0,
+    };
   }
 }

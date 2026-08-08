@@ -19,3 +19,14 @@ export interface Dashboard {
   savingsGoal: SavingsGoal;
   insight: Insight;
 }
+
+export const savingsGoalStatus = {
+  active: "active",
+  pending: "pending",
+  completed: "completed",
+  failed: "failed",
+  notActivated: "not_activated",
+} as const;
+
+export type SavingsGoalStatus =
+  (typeof savingsGoalStatus)[keyof typeof savingsGoalStatus];

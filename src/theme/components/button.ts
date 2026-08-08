@@ -40,7 +40,6 @@ export const buttonStyles: {
       borderRadius: radius.md,
 
       minHeight: 48,
-      width: "100%",
     },
 
     text: {

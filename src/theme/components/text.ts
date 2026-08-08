@@ -1,5 +1,5 @@
-import { typography } from '../typography'
-import { tokens } from '../tokens'
+import { tokens } from "../tokens";
+import { typography } from "../typography";
 
 export const textStyles = {
   h1: {
@@ -14,6 +14,11 @@ export const textStyles = {
 
   h3: {
     ...typography.h3,
+    color: tokens.text.primary,
+  },
+
+  h4: {
+    ...typography.h4,
     color: tokens.text.primary,
   },
 
@@ -36,4 +41,4 @@ export const textStyles = {
     ...typography.small,
     color: tokens.text.secondary,
   },
-}
+};

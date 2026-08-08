@@ -1,21 +1,25 @@
 import { dashboard } from "@/data";
-import { db } from "@/lib/database";
 import type { Dashboard } from "@/models";
 
+import { SavingsGoalRepository } from "./savingsGoals.repository";
 import { SettingsRepository } from "./settings.repository";
-
-type DashboardSummaryRow = {
-  income: number | null;
-  expense: number | null;
-};
+import { TransactionRepository } from "./transaction.repository";
 
 export class DashboardRepository {
   private readonly settingsRepository = new SettingsRepository();
+  private readonly savingsGoalRepository = new SavingsGoalRepository();
+  private readonly transactionRepository = new TransactionRepository();
+
   async getDashboard(): Promise<Dashboard> {
-    const { balanceIncome, balanceExpense } = await this.getBalanceSummary();
+    const { income: balanceIncome, expense: balanceExpense } =
+      await this.getBalanceSummary();
     const { income, expense } = await this.getMonthlySummary();
 
     const initialBalance = await this.settingsRepository.getInitialBalance();
+
+    const currentGoal = await this.savingsGoalRepository.getCurrentGoal();
+
+    const savingsGoalTarget = currentGoal?.target ?? 0;
 
     return {
       balance: initialBalance + balanceIncome - balanceExpense,
@@ -25,38 +29,34 @@ export class DashboardRepository {
         expense,
       },
 
-      savingsGoal: dashboard.savingsGoal,
+      savingsGoal: {
+        current: income - expense,
+        target: savingsGoalTarget,
+      },
 
       insight: dashboard.insight,
     };
   }
 
   private async getMonthlySummary() {
-    const result = await db.getFirstAsync<DashboardSummaryRow>(`
-    SELECT
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS income,
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
-    FROM transactions
-    WHERE strftime('%Y-%m', date) = strftime('%Y-%m', 'now', 'localtime');
-  `);
+    const now = new Date();
 
-    return {
-      income: result?.income ?? 0,
-      expense: result?.expense ?? 0,
-    };
+    const from = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const to = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    return this.transactionRepository.getSummary(from, to);
   }
 
   private async getBalanceSummary() {
-    const result = await db.getFirstAsync<DashboardSummaryRow>(`
-    SELECT
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS income,
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
-    FROM transactions;
-  `);
-
-    return {
-      balanceIncome: result?.income ?? 0,
-      balanceExpense: result?.expense ?? 0,
-    };
+    return this.transactionRepository.getSummary(new Date(0), new Date());
   }
 }

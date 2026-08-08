@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { useAppFonts } from "@/hooks";
-import { initializeDatabase } from "@/lib/database";
 import { queryClient } from "@/lib/react-query";
+
+import { initializeApp } from "@/lib/app/app";
 
 export default function RootLayout() {
   const [fontsLoaded] = useAppFonts();
@@ -13,7 +14,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function initialize() {
-      await initializeDatabase();
+      await initializeApp();
+
       setDatabaseReady(true);
     }
 
