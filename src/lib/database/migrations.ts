@@ -29,9 +29,9 @@ export async function initializeDatabase() {
     );
   `);
 
-    await db.execAsync(`
-     DELETE FROM savings_goals;
-    `);
+    // await db.execAsync(`
+    //  DELETE FROM savings_goals;
+    // `);
 
     //     await db.execAsync(`
     //       UPDATE savings_goals

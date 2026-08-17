@@ -80,7 +80,6 @@ export class SavingsGoalRepository {
     target: number,
     status: SavingsGoalStatus,
   ): Promise<void> {
-    console.log("CREATE GOAL:", period, status);
     await db.runAsync(
       `
       INSERT INTO savings_goals (
@@ -146,9 +145,6 @@ export class SavingsGoalRepository {
   }
 
   private async createMissingGoals(lastGoal: SavingsGoalRow): Promise<void> {
-    console.log("Current:", this.getCurrentPeriod());
-    console.log("Next:", this.getNextPeriod());
-    console.log("Last goal:", lastGoal.period);
     const lastGoalDate = this.periodToDate(lastGoal.period);
 
     const nextRequiredDate = this.periodToDate(this.getNextPeriod());
@@ -159,8 +155,6 @@ export class SavingsGoalRepository {
       const period = this.dateToPeriod(lastGoalDate);
 
       let status: SavingsGoalStatus = savingsGoalStatus.notActivated;
-
-      console.log("Creating:", period, status);
 
       if (period === this.getCurrentPeriod()) {
         status = savingsGoalStatus.active;
@@ -289,15 +283,15 @@ export class SavingsGoalRepository {
     );
   }
 
-  async debugGoals(): Promise<void> {
-    const goals = await this.getGoals();
+  // async debugGoals(): Promise<void> {
+  //   const goals = await this.getGoals();
 
-    console.log(JSON.stringify(goals, null, 2));
-  }
+  //   console.log(JSON.stringify(goals, null, 2));
+  // }
 
-  async seedDebugGoals() {
-    await this.createGoal("2026-03", 500, savingsGoalStatus.active);
+  // async seedDebugGoals() {
+  //   await this.createGoal("2026-03", 500, savingsGoalStatus.active);
 
-    await this.createGoal("2026-04", 500, savingsGoalStatus.pending);
-  }
+  //   await this.createGoal("2026-04", 500, savingsGoalStatus.pending);
+  // }
 }

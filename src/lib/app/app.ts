@@ -6,11 +6,9 @@ export async function initializeApp() {
 
   const savingsGoalRepository = new SavingsGoalRepository();
 
-  await savingsGoalRepository.debugGoals();
-
-  await savingsGoalRepository.seedDebugGoals();
-
   await savingsGoalRepository.initializeGoals();
 
-  await savingsGoalRepository.debugGoals();
+  const hasGoals = await savingsGoalRepository.hasGoals();
+
+  console.log("HAS GOALS AFTER INITIALIZATION:", hasGoals);
 }
