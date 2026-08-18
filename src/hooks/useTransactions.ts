@@ -12,10 +12,15 @@ export function useTransactions() {
   });
 }
 
-export function useTransaction(id: string) {
+export function useTransaction(id: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.transaction(id),
-    queryFn: () => repository.getTransactionById(id),
+    queryKey: queryKeys.transaction(id ?? ""),
+    queryFn: async () => {
+      const transaction = await repository.getTransactionById(id!);
+
+      return transaction ?? null;
+    },
+    enabled: Boolean(id),
   });
 }
 

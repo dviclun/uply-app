@@ -1,5 +1,5 @@
 import { TransactionFormScreen } from "@/features/transactions";
 
 export default function AddTransactionRoute() {
-  return <TransactionFormScreen mode="create" />;
+  return <TransactionFormScreen mode="edit" />;
 }

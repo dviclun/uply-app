@@ -70,6 +70,39 @@ export class TransactionRepository {
     return transaction;
   }
 
+  async update(transaction: Transaction): Promise<Transaction> {
+    const row = toTransactionRow(transaction);
+
+    await db.runAsync(
+      `
+    UPDATE transactions
+    SET
+      title = ?,
+      amount = ?,
+      type = ?,
+      date = ?
+    WHERE id = ?;
+  `,
+      row.title,
+      row.amount,
+      row.type,
+      row.date,
+      row.id,
+    );
+
+    return transaction;
+  }
+
+  async delete(id: string): Promise<void> {
+    await db.runAsync(
+      `
+    DELETE FROM transactions
+    WHERE id = ?;
+  `,
+      id,
+    );
+  }
+
   async getSummary(
     from: Date,
     to: Date,

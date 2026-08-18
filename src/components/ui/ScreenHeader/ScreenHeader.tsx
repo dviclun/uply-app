@@ -44,7 +44,7 @@ export function ScreenHeader({
         </Pressable>
       )}
 
-      <Text variant="h1" style={styles.title}>
+      <Text variant="h2" style={styles.title}>
         {title}
       </Text>
     </View>

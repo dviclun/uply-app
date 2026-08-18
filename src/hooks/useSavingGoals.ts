@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { queryKeys } from "@/lib/react-query";
 import { SavingsGoalRepository } from "@/repositories";
 
 const repository = new SavingsGoalRepository();
@@ -9,16 +10,16 @@ export function useSavingsGoal() {
 
   const invalidateSavingsGoals = async () => {
     await queryClient.invalidateQueries({
-      queryKey: ["dashboard"],
+      queryKey: queryKeys.dashboard,
     });
 
     await queryClient.invalidateQueries({
-      queryKey: ["savings-goal"],
+      queryKey: queryKeys.savingsGoal,
     });
   };
 
   const query = useQuery({
-    queryKey: ["savings-goal"],
+    queryKey: queryKeys.savingsGoal,
     queryFn: async () => {
       const hasGoals = await repository.hasGoals();
 

@@ -7,8 +7,4 @@ export async function initializeApp() {
   const savingsGoalRepository = new SavingsGoalRepository();
 
   await savingsGoalRepository.initializeGoals();
-
-  const hasGoals = await savingsGoalRepository.hasGoals();
-
-  console.log("HAS GOALS AFTER INITIALIZATION:", hasGoals);
 }

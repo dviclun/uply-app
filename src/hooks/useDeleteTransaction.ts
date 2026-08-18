@@ -1,24 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { CreateTransactionUseCase } from "@/features/transactions/application/createTransaction";
+import { DeleteTransactionUseCase } from "@/features/transactions/application/deleteTransaction";
 import { queryKeys } from "@/lib/react-query/queryKeys";
 import { TransactionRepository } from "@/repositories";
 
 const repository = new TransactionRepository();
-const createTransactionUseCase = new CreateTransactionUseCase(repository);
+const deleteTransactionUseCase = new DeleteTransactionUseCase(repository);
 
-export function useCreateTransaction() {
+export function useDeleteTransaction() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: createTransactionUseCase.execute.bind(createTransactionUseCase),
+  return useMutation<void, Error, string>({
+    mutationFn: deleteTransactionUseCase.execute.bind(deleteTransactionUseCase),
 
-    onSuccess: async () => {
+    onSuccess: async (_, id) => {
+      queryClient.removeQueries({
+        queryKey: queryKeys.transaction(id),
+      });
+
       await queryClient.invalidateQueries({
         queryKey: queryKeys.transactions,
       });
 
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: queryKeys.dashboard,
       });
 
