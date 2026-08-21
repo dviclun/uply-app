@@ -1,3 +1,4 @@
+export { useAuth } from "./useAuth";
 export * from "./useCreateTransactions";
 export * from "./useDashboard";
 export * from "./useDeleteTransaction";
