@@ -2,12 +2,12 @@ import { router } from "expo-router";
 import { useState } from "react";
 
 import {
-    Button,
-    Container,
-    Screen,
-    Stack,
-    Text,
-    TextField,
+  Button,
+  Container,
+  Screen,
+  Stack,
+  Text,
+  TextField,
 } from "@/components/ui";
 
 import { useAuth } from "@/hooks";
@@ -34,7 +34,7 @@ export function LoginScreen() {
 
       await signIn(email.trim(), password);
 
-      router.replace("/(tabs)");
+      router.replace("/(app)/(tabs)");
     } catch (error) {
       setError(
         error instanceof Error

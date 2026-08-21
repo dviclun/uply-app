@@ -1,7 +1,13 @@
 export const queryKeys = {
-  dashboard: ["dashboard"] as const,
-  transactions: ["transactions"] as const,
-  dashboardTransactions: ["dashboard-transactions"] as const,
-  transaction: (id: string) => ["transactions", id] as const,
-  savingsGoal: ["savings-goal"] as const,
+  dashboard: (userId: string) => ["dashboard", userId] as const,
+
+  transactions: (userId: string) => ["transactions", userId] as const,
+
+  dashboardTransactions: (userId: string) =>
+    ["dashboard-transactions", userId] as const,
+
+  transaction: (userId: string, id: string) =>
+    ["transactions", userId, id] as const,
+
+  savingsGoal: (userId: string) => ["savings-goal", userId] as const,
 };

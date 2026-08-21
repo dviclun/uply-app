@@ -29,7 +29,7 @@ async function handleAuthUrl(url: string) {
     return;
   }
 
-  router.replace("/(tabs)");
+  router.replace("/(app)/(tabs)");
 }
 
 export function AuthDeepLinkHandler() {
