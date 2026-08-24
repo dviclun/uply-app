@@ -1,12 +1,12 @@
 import { dashboard } from "@/data";
 import type { Dashboard } from "@/models";
 
+import { ProfileRepository } from "./profile.repository";
 import { SavingsGoalRepository } from "./savingsGoals.repository";
-import { SettingsRepository } from "./settings.repository";
 import { TransactionRepository } from "./transaction.repository";
 
 export class DashboardRepository {
-  private readonly settingsRepository = new SettingsRepository();
+  private readonly profileRepository = new ProfileRepository();
   private readonly savingsGoalRepository = new SavingsGoalRepository();
   private readonly transactionRepository = new TransactionRepository();
 
@@ -15,7 +15,7 @@ export class DashboardRepository {
       await this.getBalanceSummary();
     const { income, expense } = await this.getMonthlySummary();
 
-    const initialBalance = await this.settingsRepository.getInitialBalance();
+    const initialBalance = await this.profileRepository.getInitialBalance();
 
     const currentGoal = await this.savingsGoalRepository.getCurrentGoal();
 

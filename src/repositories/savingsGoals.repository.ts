@@ -1,10 +1,11 @@
-import { db } from "@/lib/database";
+import { supabase } from "@/lib/supabase";
 import { savingsGoalStatus, SavingsGoalStatus } from "@/models";
 import { generateId } from "@/utils/generateId";
 import { TransactionRepository } from "./transaction.repository";
 
 type SavingsGoalRow = {
   id: string;
+  user_id: string;
   period: string;
   target: number;
   status: SavingsGoalStatus;
@@ -60,19 +61,40 @@ export class SavingsGoalRepository {
     };
   }
 
+  private async getCurrentUserId(): Promise<string> {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!user) {
+      throw new Error("User is not authenticated.");
+    }
+
+    return user.id;
+  }
+
   private async updateGoalStatus(
     id: string,
     status: SavingsGoalStatus,
   ): Promise<void> {
-    await db.runAsync(
-      `
-      UPDATE savings_goals
-      SET status = ?
-      WHERE id = ?;
-    `,
-      status,
-      id,
-    );
+    const userId = await this.getCurrentUserId();
+
+    const { error } = await supabase
+      .from("savings_goals")
+      .update({
+        status,
+      })
+      .eq("id", id)
+      .eq("user_id", userId);
+
+    if (error) {
+      throw error;
+    }
   }
 
   private async createGoal(
@@ -80,21 +102,26 @@ export class SavingsGoalRepository {
     target: number,
     status: SavingsGoalStatus,
   ): Promise<void> {
-    await db.runAsync(
-      `
-      INSERT INTO savings_goals (
-        id,
-        period,
-        target,
-        status
-      )
-      VALUES (?, ?, ?, ?);
-    `,
-      generateId(),
+    const userId = await this.getCurrentUserId();
+
+    console.log("GOALS CREATE:", {
+      userId,
       period,
       target,
       status,
-    );
+    });
+
+    const { error } = await supabase.from("savings_goals").insert({
+      id: generateId(),
+      user_id: userId,
+      period,
+      target,
+      status,
+    });
+
+    if (error) {
+      throw error;
+    }
   }
 
   private async synchronizePreviousGoals(): Promise<void> {
@@ -144,15 +171,50 @@ export class SavingsGoalRepository {
     await this.updateGoalStatus(currentGoal.id, savingsGoalStatus.active);
   }
 
+  private async getGoalByPeriod(
+    period: string,
+  ): Promise<SavingsGoalRow | null> {
+    const userId = await this.getCurrentUserId();
+
+    const { data, error } = await supabase
+      .from("savings_goals")
+      .select("id, user_id, period, target, status")
+      .eq("user_id", userId)
+      .eq("period", period)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data ? (data as SavingsGoalRow) : null;
+  }
+
   private async createMissingGoals(lastGoal: SavingsGoalRow): Promise<void> {
     const lastGoalDate = this.periodToDate(lastGoal.period);
 
     const nextRequiredDate = this.periodToDate(this.getNextPeriod());
 
+    console.log("GOALS INIT - createMissingGoals:", {
+      lastGoal: lastGoal.period,
+      nextRequired: this.getNextPeriod(),
+    });
+
     while (lastGoalDate < nextRequiredDate) {
       lastGoalDate.setMonth(lastGoalDate.getMonth() + 1);
 
       const period = this.dateToPeriod(lastGoalDate);
+
+      const existingGoal = await this.getGoalByPeriod(period);
+
+      console.log("GOALS INIT - checking period:", {
+        period,
+        exists: Boolean(existingGoal),
+      });
+
+      if (existingGoal) {
+        continue;
+      }
 
       let status: SavingsGoalStatus = savingsGoalStatus.notActivated;
 
@@ -162,20 +224,29 @@ export class SavingsGoalRepository {
         status = savingsGoalStatus.pending;
       }
 
+      console.log("GOALS INIT - creating:", {
+        period,
+        status,
+      });
+
       await this.createGoal(period, lastGoal.target, status);
     }
   }
 
   private async getGoals(): Promise<SavingsGoalRow[]> {
-    return db.getAllAsync<SavingsGoalRow>(`
-    SELECT
-      id,
-      period,
-      target,
-      status
-    FROM savings_goals
-    ORDER BY period ASC;
-  `);
+    const userId = await this.getCurrentUserId();
+
+    const { data, error } = await supabase
+      .from("savings_goals")
+      .select("id, user_id, period, target, status")
+      .eq("user_id", userId)
+      .order("period", { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []) as SavingsGoalRow[];
   }
 
   async createFirstGoal(target: number): Promise<void> {
@@ -188,71 +259,69 @@ export class SavingsGoalRepository {
   }
 
   async hasGoals(): Promise<boolean> {
-    const result = await db.getFirstAsync<{
-      count: number;
-    }>(`
-    SELECT COUNT(*) as count
-    FROM savings_goals;
-  `);
+    const goals = await this.getGoals();
 
-    return (result?.count ?? 0) > 0;
+    return goals.length > 0;
   }
 
   async getCurrentGoal(): Promise<SavingsGoalRow | null> {
+    const userId = await this.getCurrentUserId();
     const currentPeriod = this.getCurrentPeriod();
 
-    const goal = await db.getFirstAsync<SavingsGoalRow>(
-      `
-      SELECT
-        id,
-        period,
-        target,
-        status
-      FROM savings_goals
-      WHERE period = ?;
-      `,
-      currentPeriod,
-    );
+    const { data, error } = await supabase
+      .from("savings_goals")
+      .select("id, user_id, period, target, status")
+      .eq("user_id", userId)
+      .eq("period", currentPeriod)
+      .maybeSingle();
 
-    return goal ?? null;
+    if (error) {
+      throw error;
+    }
+
+    return data ? (data as SavingsGoalRow) : null;
   }
 
   async getNextGoal(): Promise<SavingsGoalRow | null> {
+    const userId = await this.getCurrentUserId();
     const nextPeriod = this.getNextPeriod();
 
-    const goal = await db.getFirstAsync<SavingsGoalRow>(
-      `
-      SELECT
-        id,
-        period,
-        target,
-        status
-      FROM savings_goals
-      WHERE period = ?;
-      `,
-      nextPeriod,
-    );
+    const { data, error } = await supabase
+      .from("savings_goals")
+      .select("id, user_id, period, target, status")
+      .eq("user_id", userId)
+      .eq("period", nextPeriod)
+      .maybeSingle();
 
-    return goal ?? null;
+    if (error) {
+      throw error;
+    }
+
+    return data ? (data as SavingsGoalRow) : null;
   }
 
   async getLastGoal(): Promise<SavingsGoalRow | null> {
-    const goal = await db.getFirstAsync<SavingsGoalRow>(`
-    SELECT
-      id,
-      period,
-      target,
-      status
-    FROM savings_goals
-    ORDER BY period DESC
-    LIMIT 1;
-  `);
+    const userId = await this.getCurrentUserId();
 
-    return goal ?? null;
+    const { data, error } = await supabase
+      .from("savings_goals")
+      .select("id, user_id, period, target, status")
+      .eq("user_id", userId)
+      .order("period", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data ? (data as SavingsGoalRow) : null;
   }
 
   async initializeGoals(): Promise<void> {
     const lastGoal = await this.getLastGoal();
+
+    console.log("GOALS INIT - lastGoal BEFORE:", lastGoal);
 
     if (!lastGoal) {
       return;
@@ -262,36 +331,35 @@ export class SavingsGoalRepository {
 
     await this.activateCurrentGoal();
 
-    await this.createMissingGoals(lastGoal);
+    const updatedLastGoal = await this.getLastGoal();
+
+    console.log("GOALS INIT - lastGoal AFTER:", updatedLastGoal);
+
+    if (!updatedLastGoal) {
+      return;
+    }
+
+    await this.createMissingGoals(updatedLastGoal);
   }
 
   async updateNextGoalTarget(target: number): Promise<void> {
+    const userId = await this.getCurrentUserId();
     const nextGoal = await this.getNextGoal();
 
     if (!nextGoal) {
       throw new Error("No next savings goal found.");
     }
 
-    await db.runAsync(
-      `
-      UPDATE savings_goals
-      SET target = ?
-      WHERE id = ?;
-    `,
-      target,
-      nextGoal.id,
-    );
+    const { error } = await supabase
+      .from("savings_goals")
+      .update({
+        target,
+      })
+      .eq("id", nextGoal.id)
+      .eq("user_id", userId);
+
+    if (error) {
+      throw error;
+    }
   }
-
-  // async debugGoals(): Promise<void> {
-  //   const goals = await this.getGoals();
-
-  //   console.log(JSON.stringify(goals, null, 2));
-  // }
-
-  // async seedDebugGoals() {
-  //   await this.createGoal("2026-03", 500, savingsGoalStatus.active);
-
-  //   await this.createGoal("2026-04", 500, savingsGoalStatus.pending);
-  // }
 }
