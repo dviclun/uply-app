@@ -14,7 +14,8 @@ export type TextTone =
   | "inverse"
   | "success"
   | "danger"
-  | "warning";
+  | "warning"
+  | "brand";
 
 export type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 

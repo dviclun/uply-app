@@ -9,9 +9,10 @@ const toneMap: Record<TextTone, string> = {
   primary: tokens.text.primary,
   secondary: tokens.text.secondary,
   inverse: tokens.text.inverse,
-  success: tokens.status.success,
-  danger: tokens.status.danger,
-  warning: tokens.status.warning,
+  brand: tokens.text.brand,
+  success: tokens.status.success.foreground,
+  danger: tokens.status.danger.foreground,
+  warning: tokens.status.warning.foreground,
 };
 
 export function Text({

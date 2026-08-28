@@ -6,6 +6,7 @@ import {
   ScreenHeader,
   SegmentedControl,
   Stack,
+  Text,
   TextField,
 } from "@/components/ui";
 import { useEffect, useState } from "react";
@@ -16,6 +17,7 @@ import {
   useTransaction,
   useUpdateTransaction,
 } from "@/hooks";
+import { useToast } from "@/providers";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useLocalSearchParams } from "expo-router";
 import { TransactionFormScreenProps } from "./types";
@@ -29,12 +31,17 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
   const [type, setType] = useState<TransactionType>("expense");
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const createTransaction = useCreateTransaction();
   const updateTransaction = useUpdateTransaction();
 
+  const { showToast } = useToast();
+
   const isValid =
-    title.trim().length > 0 && !Number.isNaN(amount) && parseFloat(amount) > 0;
+    title.trim().length > 0 &&
+    !Number.isNaN(Number(amount.replace(",", "."))) &&
+    Number(amount.replace(",", ".")) > 0;
 
   if (isEditMode && !id) {
     return null;
@@ -43,26 +50,52 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
   const { data: transaction, isLoading } = useTransaction(id);
 
   const handleSave = async () => {
-    const parsedAmount = Number(amount.replace(",", "."));
-
-    if (isEditMode && transaction) {
-      await updateTransaction.mutateAsync({
-        ...transaction,
-        title: title.trim(),
-        amount: parsedAmount,
-        type,
-        date,
-      });
-    } else {
-      await createTransaction.mutateAsync({
-        title: title.trim(),
-        amount: parsedAmount,
-        type,
-        date,
-      });
+    if (!isValid) {
+      return;
     }
 
-    router.back();
+    const parsedAmount = Number(amount.replace(",", "."));
+
+    try {
+      setError(null);
+
+      if (isEditMode && transaction) {
+        await updateTransaction.mutateAsync({
+          ...transaction,
+          title: title.trim(),
+          amount: parsedAmount,
+          type,
+          date,
+        });
+
+        showToast({
+          message: "Movimiento actualizado correctamente.",
+          variant: "success",
+        });
+      } else {
+        await createTransaction.mutateAsync({
+          title: title.trim(),
+          amount: parsedAmount,
+          type,
+          date,
+        });
+
+        showToast({
+          message: "Movimiento creado correctamente.",
+          variant: "success",
+        });
+      }
+
+      router.back();
+    } catch (error) {
+      console.error("TRANSACTION SAVE ERROR:", error);
+
+      setError(
+        error instanceof Error
+          ? "No se ha podido guardar el movimiento. Inténtalo de nuevo."
+          : "No se ha podido guardar el movimiento. Inténtalo de nuevo.",
+      );
+    }
   };
 
   useEffect(() => {
@@ -74,7 +107,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
     setTitle(transaction.title);
     setType(transaction.type);
     setDate(transaction.date);
-  }, [transaction, mode]);
+  }, [transaction, isEditMode]);
 
   if (isEditMode && isLoading) {
     return null;
@@ -129,11 +162,12 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             value={date}
             onPress={() => setShowPicker(true)}
           />
+
           {showPicker && (
             <DateTimePicker
               value={date}
               mode="date"
-              onValueChange={(_, selectedDate) => {
+              onChange={(_, selectedDate) => {
                 if (selectedDate) {
                   setDate(selectedDate);
                 }
@@ -146,9 +180,15 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             />
           )}
 
+          {error && <Text tone="danger">{error}</Text>}
+
           <Button
             onPress={handleSave}
-            disabled={!isValid}
+            disabled={
+              !isValid ||
+              createTransaction.isPending ||
+              updateTransaction.isPending
+            }
             loading={
               isEditMode
                 ? updateTransaction.isPending

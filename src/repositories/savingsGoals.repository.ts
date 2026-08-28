@@ -104,13 +104,6 @@ export class SavingsGoalRepository {
   ): Promise<void> {
     const userId = await this.getCurrentUserId();
 
-    console.log("GOALS CREATE:", {
-      userId,
-      period,
-      target,
-      status,
-    });
-
     const { error } = await supabase.from("savings_goals").insert({
       id: generateId(),
       user_id: userId,
@@ -195,22 +188,12 @@ export class SavingsGoalRepository {
 
     const nextRequiredDate = this.periodToDate(this.getNextPeriod());
 
-    console.log("GOALS INIT - createMissingGoals:", {
-      lastGoal: lastGoal.period,
-      nextRequired: this.getNextPeriod(),
-    });
-
     while (lastGoalDate < nextRequiredDate) {
       lastGoalDate.setMonth(lastGoalDate.getMonth() + 1);
 
       const period = this.dateToPeriod(lastGoalDate);
 
       const existingGoal = await this.getGoalByPeriod(period);
-
-      console.log("GOALS INIT - checking period:", {
-        period,
-        exists: Boolean(existingGoal),
-      });
 
       if (existingGoal) {
         continue;
@@ -223,11 +206,6 @@ export class SavingsGoalRepository {
       } else if (period === this.getNextPeriod()) {
         status = savingsGoalStatus.pending;
       }
-
-      console.log("GOALS INIT - creating:", {
-        period,
-        status,
-      });
 
       await this.createGoal(period, lastGoal.target, status);
     }
@@ -321,8 +299,6 @@ export class SavingsGoalRepository {
   async initializeGoals(): Promise<void> {
     const lastGoal = await this.getLastGoal();
 
-    console.log("GOALS INIT - lastGoal BEFORE:", lastGoal);
-
     if (!lastGoal) {
       return;
     }
@@ -332,8 +308,6 @@ export class SavingsGoalRepository {
     await this.activateCurrentGoal();
 
     const updatedLastGoal = await this.getLastGoal();
-
-    console.log("GOALS INIT - lastGoal AFTER:", updatedLastGoal);
 
     if (!updatedLastGoal) {
       return;

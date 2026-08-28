@@ -1,16 +1,17 @@
 import { useState } from "react";
 
 import {
-    Button,
-    Container,
-    Screen,
-    ScreenHeader,
-    Stack,
-    Text,
-    TextField,
+  Button,
+  Container,
+  Screen,
+  ScreenHeader,
+  Stack,
+  Text,
+  TextField,
 } from "@/components/ui";
 
 import { useAuth } from "@/hooks";
+import { getAuthErrorMessage } from "@/utils/authErrors";
 import { router } from "expo-router";
 
 export function RegisterScreen() {
@@ -39,16 +40,22 @@ export function RegisterScreen() {
       setError(null);
       setLoading(true);
 
-      const data = await signUp(email.trim(), password, parsedBalance);
+      const result = await signUp(email.trim(), password, parsedBalance);
 
-      console.log("SIGN UP:", data);
-      router.replace("/login");
+      if (result.requiresEmailConfirmation) {
+        router.replace({
+          pathname: "/email-confirmation",
+          params: {
+            email: result.email,
+          },
+        });
+
+        return;
+      }
+
+      router.replace("/(app)/(tabs)");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "No se ha podido crear la cuenta.",
-      );
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -85,7 +92,7 @@ export function RegisterScreen() {
             onChangeText={setInitialBalance}
           />
 
-          {error && <Text>{error}</Text>}
+          {error && <Text tone="danger">{error}</Text>}
 
           <Button
             onPress={handleRegister}

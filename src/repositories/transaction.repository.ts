@@ -19,15 +19,11 @@ export class TransactionRepository {
       throw new Error("User is not authenticated.");
     }
 
-    console.log("TRANSACTION USER:", {
-      id: user.id,
-      email: user.email,
-    });
-
     return user.id;
   }
 
   async getRecentTransactions(): Promise<Transaction[]> {
+    // throw new Error("Error de prueba");
     const userId = await this.getCurrentUserId();
 
     const { data, error } = await supabase

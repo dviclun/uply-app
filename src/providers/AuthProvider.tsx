@@ -1,9 +1,9 @@
 import {
-    createContext,
-    type ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 import type { Session, User } from "@supabase/supabase-js";
@@ -11,6 +11,11 @@ import type { Session, User } from "@supabase/supabase-js";
 import * as Linking from "expo-linking";
 
 import { supabase } from "@/lib/supabase";
+
+type SignUpResult = {
+  requiresEmailConfirmation: boolean;
+  email: string;
+};
 
 type AuthContextValue = {
   session: Session | null;
@@ -20,9 +25,10 @@ type AuthContextValue = {
     email: string,
     password: string,
     initialBalance: number,
-  ) => Promise<void>;
+  ) => Promise<SignUpResult>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  resendConfirmationEmail: (email: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -39,25 +45,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let mounted = true;
 
-    const initialize = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const initializeSession = async () => {
+      try {
+        setLoading(true);
 
-      if (!mounted) {
-        return;
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          throw error;
+        }
+
+        if (!mounted) {
+          return;
+        }
+
+        setSession(session);
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error("AUTH INITIALIZATION ERROR:", error);
+
+        if (!mounted) {
+          return;
+        }
+
+        // Si no podemos comprobar la sesión,
+        // tratamos al usuario como no autenticado.
+        setSession(null);
+        setUser(null);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
     };
 
-    initialize();
+    initializeSession();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) {
+        return;
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -73,10 +106,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     email: string,
     password: string,
     initialBalance: number,
-  ) => {
+  ): Promise<SignUpResult> => {
     const redirectTo = Linking.createURL("auth/callback");
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -90,6 +123,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (error) {
       throw error;
     }
+
+    return {
+      requiresEmailConfirmation: data.session === null,
+      email,
+    };
   };
 
   const signIn = async (email: string, password: string) => {
@@ -111,6 +149,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const resendConfirmationEmail = async (email: string): Promise<void> => {
+    const redirectTo = Linking.createURL("auth/callback");
+
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -120,6 +174,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signUp,
         signIn,
         signOut,
+        resendConfirmationEmail,
       }}
     >
       {children}

@@ -8,4 +8,5 @@ export interface ButtonProps extends PressableProps {
   loading?: boolean;
   fullWidth?: boolean;
   flex?: number;
+  compact?: boolean;
 }

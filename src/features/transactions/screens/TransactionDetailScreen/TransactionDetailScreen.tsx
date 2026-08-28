@@ -1,12 +1,14 @@
 import {
   Button,
   Container,
+  ErrorState,
+  LoadingState,
   Screen,
   ScreenHeader,
   Stack,
-  Text,
 } from "@/components/ui";
 import { useDeleteTransaction, useTransaction } from "@/hooks";
+import { useToast } from "@/providers";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { DeleteTransactionModal } from "../../components/DeleteTransactionModal";
@@ -18,27 +20,72 @@ export function TransactionDetailScreen() {
     id: string;
   }>();
 
-  const { data: transaction } = useTransaction(id);
+  const { data: transaction, isLoading, isError, refetch } = useTransaction(id);
+
   const deleteTransaction = useDeleteTransaction();
+  const { showToast } = useToast();
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  if (isLoading) {
+    return <LoadingState message="Cargando movimiento..." />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        message="No hemos podido cargar este movimiento."
+        onRetry={refetch}
+      />
+    );
+  }
 
   if (!transaction) {
     return (
-      <Screen>
-        <Container>
-          <Text>Transacción no encontrada</Text>
-        </Container>
-      </Screen>
+      <ErrorState
+        title="Movimiento no encontrado"
+        message="Puede que haya sido eliminado o ya no esté disponible."
+        onRetry={() => router.back()}
+        retryLabel="Volver"
+      />
     );
   }
 
   const handleDelete = async () => {
-    if (!transaction) return;
+    setDeleteError(null);
 
-    await deleteTransaction.mutateAsync(transaction.id);
+    try {
+      await deleteTransaction.mutateAsync(transaction.id);
+
+      showToast({
+        message: "Movimiento eliminado correctamente.",
+        variant: "success",
+      });
+
+      setDeleteModalVisible(false);
+      router.back();
+    } catch (error) {
+      console.error("TRANSACTION DELETE ERROR:", error);
+
+      setDeleteError(
+        "No se ha podido eliminar el movimiento. Inténtalo de nuevo.",
+      );
+    }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setDeleteError(null);
+    setDeleteModalVisible(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (deleteTransaction.isPending) {
+      return;
+    }
+
     setDeleteModalVisible(false);
-    router.back();
+    setDeleteError(null);
   };
 
   return (
@@ -66,20 +113,23 @@ export function TransactionDetailScreen() {
             >
               Editar
             </Button>
+
             <Button
               flex={1}
               variant="secondary"
-              onPress={() => setDeleteModalVisible(true)}
+              onPress={handleOpenDeleteModal}
               disabled={deleteTransaction.isPending}
             >
               Eliminar
             </Button>
           </Stack>
         </Stack>
+
         <DeleteTransactionModal
           visible={deleteModalVisible}
           loading={deleteTransaction.isPending}
-          onClose={() => setDeleteModalVisible(false)}
+          error={deleteError}
+          onClose={handleCloseDeleteModal}
           onConfirm={handleDelete}
         />
       </Container>

@@ -1,18 +1,23 @@
 export const colors = {
-  primary: '#4F46E5',     // Índigo
-  secondary: '#6366F1',
-  inverse: '#FFFFFF',
+  primary: "#4F46E5",
+  secondary: "#6366F1",
 
-  success: '#10B981',
-  danger: '#EF4444',
-  warning: '#F59E0B',
+  inverse: "#FFFFFF",
 
-  background: '#F3F4F6',
-  surface: '#FFFFFF',
-  surfaceSecondary: '#F1F5F9',
+  success: "#10B981",
+  danger: "#EF4444",
+  warning: "#F59E0B",
 
-  text: '#0F172A',
-  textSecondary: '#64748B',
+  successBackground: "#ECFDF5",
+  dangerBackground: "#FEF2F2",
+  warningBackground: "#FFFBEB",
 
-  border: '#E2E8F0',
-}
+  background: "#F3F4F6",
+  surface: "#FFFFFF",
+  surfaceSecondary: "#F1F5F9",
+
+  text: "#0F172A",
+  textSecondary: "#64748B",
+
+  border: "#E2E8F0",
+};

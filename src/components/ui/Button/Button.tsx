@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 
 import { Text } from "../Text";
 
@@ -9,6 +9,7 @@ export function Button({
   children,
   variant = "primary",
   fullWidth = true,
+  compact = false,
   flex,
   style,
   disabled,
@@ -22,8 +23,12 @@ export function Button({
         styles.pressable,
         fullWidth && styles.fullWidth,
         flex !== undefined && { flex },
+
         buttonStyles.base.container,
         buttonStyles[variant].container,
+
+        compact && styles.compact,
+
         pressed && styles.pressed,
         disabled && styles.disabled,
 
@@ -31,13 +36,20 @@ export function Button({
       ]}
       {...props}
     >
-      <Text
-        variant={buttonStyles.base.text.variant}
-        tone={buttonStyles[variant].text.tone}
-        style={{ textAlign: "center" }}
-      >
-        {children}
-      </Text>
+      {loading ? (
+        <ActivityIndicator
+          size="small"
+          color={buttonStyles[variant].loadingColor}
+        />
+      ) : (
+        <Text
+          variant={buttonStyles.base.text.variant}
+          tone={buttonStyles[variant].text.tone}
+          style={{ textAlign: "center" }}
+        >
+          {children}
+        </Text>
+      )}
     </Pressable>
   );
 }
@@ -55,5 +67,10 @@ const styles = StyleSheet.create({
 
   disabled: {
     opacity: 0.5,
+  },
+  compact: {
+    minHeight: 0,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
   },
 });

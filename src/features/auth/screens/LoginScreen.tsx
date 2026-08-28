@@ -11,6 +11,7 @@ import {
 } from "@/components/ui";
 
 import { useAuth } from "@/hooks";
+import { getAuthErrorMessage } from "@/utils/authErrors";
 
 export function LoginScreen() {
   const { signIn } = useAuth();
@@ -36,11 +37,7 @@ export function LoginScreen() {
 
       router.replace("/(app)/(tabs)");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "No se ha podido iniciar sesión.",
-      );
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -58,7 +55,10 @@ export function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(value) => {
+              setEmail(value);
+              setError(null);
+            }}
           />
 
           <TextField
@@ -66,20 +66,23 @@ export function LoginScreen() {
             placeholder="Tu contraseña"
             secureTextEntry
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(value) => {
+              setPassword(value);
+              setError(null);
+            }}
           />
 
-          {error && <Text>{error}</Text>}
+          {error && <Text tone="danger">{error}</Text>}
 
-          <Button
-            onPress={handleLogin}
-            disabled={!isValid || loading}
-            loading={loading}
-          >
+          <Button onPress={handleLogin} disabled={!isValid} loading={loading}>
             Iniciar sesión
           </Button>
 
-          <Button variant="secondary" onPress={() => router.push("/register")}>
+          <Button
+            variant="secondary"
+            disabled={loading}
+            onPress={() => router.push("/register")}
+          >
             Crear cuenta
           </Button>
         </Stack>

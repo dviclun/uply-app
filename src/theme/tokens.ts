@@ -1,10 +1,11 @@
-import { colors } from './colors'
+import { colors } from "./colors";
 
 export const tokens = {
   text: {
     primary: colors.text,
     secondary: colors.textSecondary,
     inverse: colors.inverse,
+    brand: colors.primary,
   },
 
   background: {
@@ -18,13 +19,22 @@ export const tokens = {
   },
 
   status: {
-    success: colors.success,
-    danger: colors.danger,
-    warning: colors.warning,
+    success: {
+      foreground: colors.success,
+      background: colors.successBackground,
+    },
+    danger: {
+      foreground: colors.danger,
+      background: colors.dangerBackground,
+    },
+    warning: {
+      foreground: colors.warning,
+      background: colors.warningBackground,
+    },
   },
 
   brand: {
     primary: colors.primary,
     secondary: colors.secondary,
   },
-}
+};

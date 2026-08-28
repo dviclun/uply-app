@@ -1,15 +1,21 @@
 import { Modal, StyleSheet, View } from "react-native";
 
-import { Button, Card, Stack, Text } from "@/components/ui";
-import { DeleteTransactionModalProps } from "./types";
+import { Button } from "../Button";
+import { Card } from "../Card";
+import { Stack } from "../Stack";
+import { Text } from "../Text";
+import { ConfirmationModalProps } from "./types";
 
-export function DeleteTransactionModal({
+export function ConfirmationModal({
   visible,
-  loading,
+  title,
+  message,
+  confirmText,
+  loading = false,
   error,
   onClose,
   onConfirm,
-}: DeleteTransactionModalProps) {
+}: ConfirmationModalProps) {
   return (
     <Modal
       visible={visible}
@@ -21,12 +27,11 @@ export function DeleteTransactionModal({
         <Card>
           <Stack spacing="lg">
             <Text variant="h3" textAlign="center">
-              Eliminar movimiento
+              {title}
             </Text>
 
             <Text tone="secondary" textAlign="center">
-              ¿Estás seguro de que quieres eliminar este movimiento? Esta acción
-              no se puede deshacer.
+              {message}
             </Text>
 
             {error && (
@@ -39,20 +44,19 @@ export function DeleteTransactionModal({
               <Button
                 variant="secondary"
                 onPress={onClose}
-                flex={1}
                 disabled={loading}
+                flex={1}
               >
                 Cancelar
               </Button>
 
               <Button
-                variant="danger"
                 onPress={onConfirm}
-                flex={1}
                 loading={loading}
                 disabled={loading}
+                flex={1}
               >
-                Eliminar
+                {confirmText}
               </Button>
             </Stack>
           </Stack>

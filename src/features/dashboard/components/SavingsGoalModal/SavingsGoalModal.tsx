@@ -9,8 +9,9 @@ type SavingsGoalModalProps = {
   initialValue: number;
   confirmText: string;
   loading?: boolean;
+  error?: string | null;
   onClose: () => void;
-  onConfirm: (target: number) => void;
+  onConfirm: (target: number) => Promise<void>;
 };
 
 export function SavingsGoalModal({
@@ -18,7 +19,8 @@ export function SavingsGoalModal({
   title,
   initialValue,
   confirmText,
-  loading,
+  loading = false,
+  error,
   onClose,
   onConfirm,
 }: SavingsGoalModalProps) {
@@ -38,13 +40,12 @@ export function SavingsGoalModal({
     setTarget(sanitized);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!isValid) {
       return;
     }
 
-    onConfirm(Number(target));
-    onClose();
+    await onConfirm(Number(target));
   };
 
   return (
@@ -68,13 +69,24 @@ export function SavingsGoalModal({
               onChangeText={handleChange}
             />
 
+            {error && (
+              <Text tone="danger" textAlign="center">
+                {error}
+              </Text>
+            )}
+
             <Stack direction="row" spacing="md">
-              <Button variant="secondary" onPress={onClose} flex={1}>
+              <Button
+                variant="secondary"
+                onPress={onClose}
+                disabled={loading}
+                flex={1}
+              >
                 Cancelar
               </Button>
 
               <Button
-                disabled={!isValid}
+                disabled={!isValid || loading}
                 onPress={handleConfirm}
                 flex={1}
                 loading={loading}

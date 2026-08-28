@@ -18,6 +18,7 @@ interface ButtonContainerStyle extends ViewStyle {}
 interface ButtonVariantStyle {
   container: ButtonContainerStyle;
   text: ButtonVariantTextStyle;
+  loadingColor: string;
 }
 
 export const buttonStyles: {
@@ -57,6 +58,8 @@ export const buttonStyles: {
     text: {
       tone: "inverse",
     },
+
+    loadingColor: tokens.text.inverse,
   },
 
   secondary: {
@@ -69,11 +72,13 @@ export const buttonStyles: {
     text: {
       tone: "primary",
     },
+
+    loadingColor: tokens.text.primary,
   },
 
   danger: {
     container: {
-      backgroundColor: tokens.status.danger,
+      backgroundColor: tokens.status.danger.foreground,
       borderWidth: 0,
       borderColor: "transparent",
     },
@@ -81,6 +86,8 @@ export const buttonStyles: {
     text: {
       tone: "inverse",
     },
+
+    loadingColor: tokens.text.inverse,
   },
 
   ghost: {
@@ -91,7 +98,9 @@ export const buttonStyles: {
     },
 
     text: {
-      tone: "primary",
+      tone: "brand",
     },
+
+    loadingColor: tokens.text.primary,
   },
 };
