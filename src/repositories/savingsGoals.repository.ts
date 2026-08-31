@@ -15,15 +15,17 @@ export class SavingsGoalRepository {
   private readonly transactionRepository = new TransactionRepository();
 
   private getCurrentPeriod(): string {
-    return this.dateToPeriod(new Date());
+    const date = new Date();
+
+    return this.dateToPeriod(new Date(date.getFullYear(), date.getMonth(), 1));
   }
 
   private getNextPeriod(): string {
     const date = new Date();
 
-    date.setMonth(date.getMonth() + 1);
-
-    return this.dateToPeriod(date);
+    return this.dateToPeriod(
+      new Date(date.getFullYear(), date.getMonth() + 1, 1),
+    );
   }
 
   private periodToDate(period: string): Date {
