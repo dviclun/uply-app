@@ -10,4 +10,5 @@ export interface Transaction {
   date: Date;
 
   type: TransactionType;
+  categoryId: string | null;
 }

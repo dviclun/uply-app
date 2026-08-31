@@ -7,4 +7,5 @@ export type TransactionRow = {
   amount: number;
   type: TransactionType;
   date: string;
+  category_id: string | null;
 };

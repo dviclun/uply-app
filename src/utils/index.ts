@@ -7,3 +7,5 @@ export * from "./formatTransactionType";
 export * from "./formatSavingGoalsPeriod";
 
 export * from "./capitalize";
+
+export * from "./strengthenColor";

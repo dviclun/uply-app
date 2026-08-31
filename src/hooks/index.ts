@@ -1,4 +1,5 @@
 export { useAuth } from "./useAuth";
+export * from "./useCategories";
 export * from "./useCreateTransactions";
 export * from "./useDashboard";
 export * from "./useDashboardData";
@@ -7,4 +8,3 @@ export * from "./useFonts";
 export * from "./useSavingGoals";
 export * from "./useTransactions";
 export * from "./useUpdateTransaction";
-

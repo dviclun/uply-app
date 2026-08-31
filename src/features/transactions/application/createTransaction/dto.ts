@@ -5,4 +5,5 @@ export interface CreateTransactionDto {
   amount: number;
   type: TransactionType;
   date: Date;
+  categoryId: string | null;
 }

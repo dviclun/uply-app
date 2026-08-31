@@ -85,6 +85,7 @@ export class TransactionRepository {
         amount: transaction.amount,
         type: transaction.type,
         date: transaction.date.toISOString(),
+        category_id: transaction.categoryId,
       })
       .select()
       .single();
@@ -106,6 +107,7 @@ export class TransactionRepository {
         amount: transaction.amount,
         type: transaction.type,
         date: transaction.date.toISOString(),
+        category_id: transaction.categoryId,
       })
       .eq("id", transaction.id)
       .eq("user_id", userId)

@@ -9,5 +9,6 @@ export function toTransaction(row: TransactionRow): Transaction {
     amount: row.amount,
     type: row.type,
     date: new Date(row.date),
+    categoryId: row.category_id,
   };
 }

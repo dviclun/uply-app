@@ -4,6 +4,7 @@ import {
   DateField,
   Screen,
   ScreenHeader,
+  ScrollScreen,
   SegmentedControl,
   Stack,
   Text,
@@ -12,7 +13,10 @@ import {
 import { useEffect, useState } from "react";
 import { TransactionType } from "../../components/TransactionItem";
 
+import { ErrorState } from "@/components/ui/ErrorState";
+import { LoadingState } from "@/components/ui/LoadingState";
 import {
+  useCategories,
   useCreateTransaction,
   useTransaction,
   useUpdateTransaction,
@@ -20,6 +24,7 @@ import {
 import { useToast } from "@/providers";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useLocalSearchParams } from "expo-router";
+import { CategorySelector } from "../../components/CategorySelector";
 import { TransactionFormScreenProps } from "./types";
 
 export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
@@ -29,12 +34,19 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [type, setType] = useState<TransactionType>("expense");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const createTransaction = useCreateTransaction();
   const updateTransaction = useUpdateTransaction();
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    refetch: refetchCategories,
+  } = useCategories();
 
   const { showToast } = useToast();
 
@@ -66,6 +78,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
           amount: parsedAmount,
           type,
           date,
+          categoryId,
         });
 
         showToast({
@@ -78,6 +91,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
           amount: parsedAmount,
           type,
           date,
+          categoryId,
         });
 
         showToast({
@@ -107,10 +121,24 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
     setTitle(transaction.title);
     setType(transaction.type);
     setDate(transaction.date);
+    setCategoryId(transaction.categoryId);
   }, [transaction, isEditMode]);
 
-  if (isEditMode && isLoading) {
-    return null;
+  if (categoriesError) {
+    return (
+      <Screen>
+        <Container flex>
+          <ErrorState
+            message="No hemos podido cargar las categorías."
+            onRetry={refetchCategories}
+          />
+        </Container>
+      </Screen>
+    );
+  }
+
+  if (categoriesLoading || (isEditMode && isLoading)) {
+    return <LoadingState message="Cargando formulario..." />;
   }
 
   if (isEditMode && !transaction) {
@@ -118,7 +146,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
   }
 
   return (
-    <Screen>
+    <ScrollScreen>
       <Container>
         <ScreenHeader
           title={isEditMode ? "Editar movimiento" : "Nuevo movimiento"}
@@ -137,7 +165,10 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
           <SegmentedControl
             label="Tipo"
             value={type}
-            onValueChange={setType}
+            onValueChange={(newType) => {
+              setType(newType);
+              setCategoryId(null);
+            }}
             options={[
               {
                 label: "Gasto",
@@ -157,6 +188,13 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             value={title}
           />
 
+          <CategorySelector
+            categories={categories}
+            type={type}
+            value={categoryId}
+            onChange={setCategoryId}
+          />
+
           <DateField
             label="Fecha"
             value={date}
@@ -167,7 +205,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             <DateTimePicker
               value={date}
               mode="date"
-              onChange={(_, selectedDate) => {
+              onValueChange={(_, selectedDate) => {
                 if (selectedDate) {
                   setDate(selectedDate);
                 }
@@ -199,6 +237,6 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
           </Button>
         </Stack>
       </Container>
-    </Screen>
+    </ScrollScreen>
   );
 }
