@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { DeleteTransactionUseCase } from "@/features/transactions/application/deleteTransaction";
 import { queryKeys } from "@/lib/react-query/queryKeys";
+import type { Transaction, TransactionFilter } from "@/models";
 import { TransactionRepository } from "@/repositories";
 import { useAuth } from "./useAuth";
 
@@ -20,12 +21,25 @@ export function useDeleteTransaction() {
         return;
       }
 
-      queryClient.removeQueries({
-        queryKey: queryKeys.transaction(user.id, id),
-      });
+      // queryClient.removeQueries({
+      //   queryKey: queryKeys.transaction(user.id, id),
+      // });
 
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.transactions(user.id),
+      const filters: TransactionFilter[] = ["all", "expense", "income"];
+
+      filters.forEach((filter) => {
+        queryClient.setQueryData<Transaction[]>(
+          queryKeys.transactions(user.id, filter),
+          (currentTransactions) => {
+            if (!currentTransactions) {
+              return currentTransactions;
+            }
+
+            return currentTransactions.filter(
+              (transaction) => transaction.id !== id,
+            );
+          },
+        );
       });
 
       await queryClient.invalidateQueries({

@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 
 export default function TabsLayout() {
   return (
@@ -18,6 +18,18 @@ export default function TabsLayout() {
         name="transactions"
         options={{
           title: "Movimientos",
+        }}
+        listeners={{
+          tabPress: (event) => {
+            event.preventDefault();
+
+            router.push({
+              pathname: "/transactions",
+              params: {
+                resetFilter: "true",
+              },
+            });
+          },
         }}
       />
     </Tabs>

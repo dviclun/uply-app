@@ -1,6 +1,6 @@
 import { Button, Card, EmptyState, Stack, Text } from "@/components/ui";
 
-import { useDashboardTransactions } from "@/hooks";
+import { useCategories, useDashboardTransactions } from "@/hooks";
 import { router } from "expo-router";
 
 import { TransactionItem } from "@/features/transactions";
@@ -8,9 +8,15 @@ import { StyleSheet, View } from "react-native";
 
 export function RecentTransactionsCard() {
   const { data: transactions = [] } = useDashboardTransactions();
+  const { data: categories = [] } = useCategories();
 
   const handleViewAll = () => {
-    router.push("/(app)/(tabs)/transactions");
+    router.push({
+      pathname: "/(app)/(tabs)/transactions",
+      params: {
+        resetFilter: "true",
+      },
+    });
   };
 
   const handleCreateTransaction = () => {
@@ -43,9 +49,21 @@ export function RecentTransactionsCard() {
             }
           />
         ) : (
-          transactions.map((transaction) => (
-            <TransactionItem key={transaction.id} transaction={transaction} />
-          ))
+          transactions.map((transaction) => {
+            const category = transaction.categoryId
+              ? categories.find(
+                  (category) => category.id === transaction.categoryId,
+                )
+              : undefined;
+
+            return (
+              <TransactionItem
+                key={transaction.id}
+                transaction={transaction}
+                category={category}
+              />
+            );
+          })
         )}
       </Stack>
     </Card>

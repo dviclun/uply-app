@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Transaction } from "@/models";
+import type { Transaction, TransactionFilter } from "@/models";
 
 import type { TransactionRow } from "@/lib/database";
 import { toTransaction } from "@/lib/database";
@@ -22,15 +22,22 @@ export class TransactionRepository {
     return user.id;
   }
 
-  async getRecentTransactions(): Promise<Transaction[]> {
-    // throw new Error("Error de prueba");
+  async getAllTransactions(
+    filter: TransactionFilter = "all",
+  ): Promise<Transaction[]> {
     const userId = await this.getCurrentUserId();
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("transactions")
       .select("*")
       .eq("user_id", userId)
       .order("date", { ascending: false });
+
+    if (filter !== "all") {
+      query = query.eq("type", filter);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw error;

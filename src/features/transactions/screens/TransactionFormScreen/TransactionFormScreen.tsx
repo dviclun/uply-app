@@ -28,19 +28,33 @@ import { CategorySelector } from "../../components/CategorySelector";
 import { TransactionFormScreenProps } from "./types";
 
 export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, type: initialType } = useLocalSearchParams<{
+    id?: string;
+    type?: TransactionType;
+  }>();
   const isEditMode = mode === "edit";
 
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<TransactionType>("expense");
+  const [type, setType] = useState<TransactionType>(
+    initialType === "income" ? "income" : "expense",
+  );
   const [categoryId, setCategoryId] = useState<string | null>(null);
+
+  const [categoryByType, setCategoryByType] = useState<
+    Record<TransactionType, string | null>
+  >({
+    expense: null,
+    income: null,
+  });
+
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const createTransaction = useCreateTransaction();
   const updateTransaction = useUpdateTransaction();
+
   const {
     data: categories = [],
     isLoading: categoriesLoading,
@@ -122,6 +136,11 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
     setType(transaction.type);
     setDate(transaction.date);
     setCategoryId(transaction.categoryId);
+
+    setCategoryByType({
+      expense: transaction.type === "expense" ? transaction.categoryId : null,
+      income: transaction.type === "income" ? transaction.categoryId : null,
+    });
   }, [transaction, isEditMode]);
 
   if (categoriesError) {
@@ -167,7 +186,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             value={type}
             onValueChange={(newType) => {
               setType(newType);
-              setCategoryId(null);
+              setCategoryId(categoryByType[newType]);
             }}
             options={[
               {
@@ -192,7 +211,14 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             categories={categories}
             type={type}
             value={categoryId}
-            onChange={setCategoryId}
+            onChange={(newCategoryId) => {
+              setCategoryId(newCategoryId);
+
+              setCategoryByType((current) => ({
+                ...current,
+                [type]: newCategoryId,
+              }));
+            }}
           />
 
           <DateField
@@ -205,7 +231,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             <DateTimePicker
               value={date}
               mode="date"
-              onValueChange={(_, selectedDate) => {
+              onChange={(_, selectedDate) => {
                 if (selectedDate) {
                   setDate(selectedDate);
                 }

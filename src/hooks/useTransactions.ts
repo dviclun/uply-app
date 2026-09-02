@@ -1,17 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "@/lib/react-query";
+import { TransactionFilter } from "@/models";
 import { TransactionRepository } from "@/repositories";
 import { useAuth } from "./useAuth";
 
 const repository = new TransactionRepository();
 
-export function useTransactions() {
+export function useTransactions(filter: TransactionFilter = "all") {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: queryKeys.transactions(user?.id ?? ""),
-    queryFn: () => repository.getRecentTransactions(),
+    queryKey: queryKeys.transactions(user?.id ?? "", filter),
+    queryFn: () => repository.getAllTransactions(filter),
     enabled: Boolean(user),
   });
 }

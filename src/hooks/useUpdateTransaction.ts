@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { UpdateTransactionUseCase } from "@/features/transactions/application/updateTransaction";
 import { queryKeys } from "@/lib/react-query/queryKeys";
-import type { Transaction } from "@/models";
+import { updateTransactionsCache } from "@/lib/react-query/transactionCache";
+import { Transaction } from "@/models";
 import { TransactionRepository } from "@/repositories";
 import { useAuth } from "./useAuth";
 
@@ -13,20 +14,18 @@ export function useUpdateTransaction() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  return useMutation({
+  return useMutation<Transaction, Error, Transaction>({
     mutationFn: updateTransactionUseCase.execute.bind(updateTransactionUseCase),
 
-    onSuccess: async (_, transaction: Transaction) => {
+    onSuccess: async (updatedTransaction) => {
       if (!user) {
         return;
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.transactions(user.id),
-      });
+      updateTransactionsCache(queryClient, user.id, updatedTransaction);
 
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.transaction(user.id, transaction.id),
+        queryKey: queryKeys.transaction(user.id, updatedTransaction.id),
       });
 
       await queryClient.invalidateQueries({

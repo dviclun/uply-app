@@ -15,7 +15,11 @@ export function DetailRow({ label, value }: DetailRowProps) {
     >
       <Text tone="secondary">{label}</Text>
 
-      <Text variant="bodyMedium">{value}</Text>
+      {typeof value === "string" ? (
+        <Text variant="bodyMedium">{value}</Text>
+      ) : (
+        value
+      )}
     </View>
   );
 }

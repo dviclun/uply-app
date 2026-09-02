@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { Text } from "@/components/ui";
 
-import { formatCurrency, formatDate } from "@/utils";
+import { formatCurrency, formatDate, strengthenColor } from "@/utils";
 import { TransactionItemProps } from "./types";
 
 const styles = StyleSheet.create({
@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
 
 export function TransactionItem({
   transaction,
+  category,
   ...props
 }: TransactionItemProps) {
   const amountTone = transaction.type === "income" ? "success" : "danger";
@@ -43,6 +44,16 @@ export function TransactionItem({
       <View style={styles.left}>
         <Text variant="bodyMedium">{transaction.title}</Text>
 
+        {category && (
+          <Text
+            variant="small"
+            style={{
+              color: strengthenColor(category.color),
+            }}
+          >
+            {category.name}
+          </Text>
+        )}
         <Text variant="caption" tone="secondary">
           {date}
         </Text>

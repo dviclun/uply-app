@@ -7,7 +7,7 @@ import {
   ScreenHeader,
   Stack,
 } from "@/components/ui";
-import { useDeleteTransaction, useTransaction } from "@/hooks";
+import { useCategories, useDeleteTransaction, useTransaction } from "@/hooks";
 import { useToast } from "@/providers";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -20,13 +20,22 @@ export function TransactionDetailScreen() {
     id: string;
   }>();
 
-  const { data: transaction, isLoading, isError, refetch } = useTransaction(id);
+  const {
+    data: transaction,
+    isLoading: transactionLoading,
+    isError,
+    refetch,
+  } = useTransaction(id);
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useCategories();
 
   const deleteTransaction = useDeleteTransaction();
   const { showToast } = useToast();
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const isLoading = transactionLoading || categoriesLoading;
 
   if (isLoading) {
     return <LoadingState message="Cargando movimiento..." />;
@@ -51,6 +60,10 @@ export function TransactionDetailScreen() {
       />
     );
   }
+
+  const category = transaction.categoryId
+    ? categories.find((category) => category.id === transaction.categoryId)
+    : undefined;
 
   const handleDelete = async () => {
     setDeleteError(null);
@@ -96,7 +109,10 @@ export function TransactionDetailScreen() {
 
           <TransactionSummaryCard transaction={transaction} />
 
-          <TransactionDetailsCard transaction={transaction} />
+          <TransactionDetailsCard
+            transaction={transaction}
+            category={category}
+          />
 
           <Stack direction="row" spacing="md">
             <Button

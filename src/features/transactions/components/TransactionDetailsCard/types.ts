@@ -1,5 +1,6 @@
-import type { Transaction } from "@/models";
+import type { Category, Transaction } from "@/models";
 
 export interface TransactionDetailsCardProps {
   transaction: Transaction;
+  category?: Category;
 }
