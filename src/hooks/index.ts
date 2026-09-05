@@ -1,5 +1,6 @@
 export { useAuth } from "./useAuth";
 export * from "./useCategories";
+export * from "./useCheckUsernameAvailability";
 export * from "./useCreateTransactions";
 export * from "./useDashboard";
 export * from "./useDashboardData";

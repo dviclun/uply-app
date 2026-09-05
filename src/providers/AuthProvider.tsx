@@ -12,6 +12,15 @@ import * as Linking from "expo-linking";
 
 import { supabase } from "@/lib/supabase";
 
+type SignUpData = {
+  email: string;
+  password: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  initialBalance: number;
+};
+
 type SignUpResult = {
   requiresEmailConfirmation: boolean;
   email: string;
@@ -21,11 +30,7 @@ type AuthContextValue = {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signUp: (
-    email: string,
-    password: string,
-    initialBalance: number,
-  ) => Promise<SignUpResult>;
+  signUp: (data: SignUpData) => Promise<SignUpResult>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
@@ -102,11 +107,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
-  const signUp = async (
-    email: string,
-    password: string,
-    initialBalance: number,
-  ): Promise<SignUpResult> => {
+  const signUp = async ({
+    email,
+    password,
+    username,
+    firstName,
+    lastName,
+    initialBalance,
+  }: SignUpData): Promise<SignUpResult> => {
     const redirectTo = Linking.createURL("auth/callback");
 
     const { data, error } = await supabase.auth.signUp({
@@ -114,6 +122,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       password,
       options: {
         data: {
+          username,
+          first_name: firstName,
+          last_name: lastName,
           initial_balance: initialBalance,
         },
         emailRedirectTo: redirectTo,

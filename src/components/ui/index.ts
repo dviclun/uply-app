@@ -14,6 +14,6 @@ export * from "./ScreenHeader";
 export * from "./ScrollScreen";
 export * from "./SegmentedControl";
 export * from "./Stack";
+export * from "./Stepper";
 export * from "./Text";
 export * from "./TextField";
-
