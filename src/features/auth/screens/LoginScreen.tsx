@@ -94,6 +94,15 @@ export function LoginScreen() {
                 <Text style={styles.link}>¡Regístrate!</Text>
               </Pressable>
             </View>
+            <View style={styles.registerContainer}>
+              <Pressable
+                disabled={loading}
+                onPress={() => router.push("/forgot-password")}
+                style={({ pressed }) => [pressed && styles.linkPressed]}
+              >
+                <Text style={styles.link}>¿Has olvidado tu contraseña?</Text>
+              </Pressable>
+            </View>
           </Stack>
         </View>
       </Container>

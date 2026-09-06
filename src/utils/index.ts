@@ -9,3 +9,5 @@ export * from "./formatSavingGoalsPeriod";
 export * from "./capitalize";
 
 export * from "./strengthenColor";
+
+export * from "./passwordRecovery";

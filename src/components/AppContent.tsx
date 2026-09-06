@@ -10,7 +10,8 @@ import { ErrorState, LoadingScreen } from "./ui";
 const savingsGoalRepository = new SavingsGoalRepository();
 
 export function AppContent() {
-  const { session, loading } = useAuth();
+  const { session, loading, passwordRecoveryActive, authDeepLinkReady } =
+    useAuth();
 
   const [initializedUserId, setInitializedUserId] = useState<string | null>(
     null,
@@ -48,7 +49,7 @@ export function AppContent() {
   }, []);
 
   useEffect(() => {
-    if (loading) {
+    if (loading || !authDeepLinkReady) {
       return;
     }
 
@@ -56,6 +57,11 @@ export function AppContent() {
       initializingUserId.current = null;
       setInitializedUserId(null);
       setInitializationError(null);
+
+      return;
+    }
+
+    if (passwordRecoveryActive) {
       return;
     }
 
@@ -66,10 +72,19 @@ export function AppContent() {
     }
 
     initializeGoals(userId);
-  }, [loading, session, initializedUserId, initializeGoals]);
+  }, [
+    loading,
+    authDeepLinkReady,
+    session,
+    passwordRecoveryActive,
+    initializedUserId,
+    initializeGoals,
+  ]);
 
   const goalsLoading =
-    Boolean(session) && initializedUserId !== session?.user.id;
+    Boolean(session) &&
+    !passwordRecoveryActive &&
+    initializedUserId !== session?.user.id;
 
   const handleInitializationRetry = () => {
     if (!session) {
@@ -79,38 +94,35 @@ export function AppContent() {
     initializeGoals(session.user.id);
   };
 
-  if (loading) {
-    return <LoadingScreen message="Inicializando aplicación..." />;
-  }
-
-  if (initializationError) {
-    return (
-      <ErrorState
-        message="No hemos podido preparar tu espacio."
-        onRetry={handleInitializationRetry}
-      />
-    );
-  }
-
-  if (goalsLoading) {
-    return <LoadingScreen message="Preparando tu espacio..." />;
-  }
+  const isRecoveryFlow = passwordRecoveryActive;
 
   return (
     <ToastProvider>
       <AuthDeepLinkHandler />
 
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={!session}>
-          <Stack.Screen name="(auth)" />
-        </Stack.Protected>
+      {loading || !authDeepLinkReady ? (
+        <LoadingScreen message="Inicializando aplicación..." />
+      ) : initializationError ? (
+        <ErrorState
+          message="No hemos podido preparar tu espacio."
+          onRetry={handleInitializationRetry}
+        />
+      ) : goalsLoading && !isRecoveryFlow ? (
+        <LoadingScreen message="Preparando tu espacio..." />
+      ) : (
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Protected guard={!session && !isRecoveryFlow}>
+            <Stack.Screen name="(auth)" />
+          </Stack.Protected>
 
-        <Stack.Protected guard={!!session}>
-          <Stack.Screen name="(app)" />
-        </Stack.Protected>
+          <Stack.Protected guard={!!session && !isRecoveryFlow}>
+            <Stack.Screen name="(app)" />
+          </Stack.Protected>
 
-        <Stack.Screen name="auth/callback" />
-      </Stack>
+          <Stack.Screen name="auth/callback" />
+          <Stack.Screen name="auth/reset-password" />
+        </Stack>
+      )}
     </ToastProvider>
   );
 }

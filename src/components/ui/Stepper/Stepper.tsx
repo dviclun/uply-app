@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
-import { Text } from "@/components/ui";
 import { colors, radius, spacing } from "@/theme";
+import { Text } from "../Text";
 
 import { StepperProps } from "./types";
 

@@ -11,6 +11,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import * as Linking from "expo-linking";
 
 import { supabase } from "@/lib/supabase";
+import { isPasswordRecoveryMode, setPasswordRecoveryMode } from "@/utils";
 
 type SignUpData = {
   email: string;
@@ -30,10 +31,19 @@ type AuthContextValue = {
   session: Session | null;
   user: User | null;
   loading: boolean;
+
+  passwordRecoveryActive: boolean;
+  setPasswordRecoveryActive: (active: boolean) => void;
+
+  authDeepLinkReady: boolean;
+  setAuthDeepLinkReady: (ready: boolean) => void;
+
   signUp: (data: SignUpData) => Promise<SignUpResult>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -46,6 +56,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [passwordRecoveryActive, setPasswordRecoveryActive] = useState(false);
+
+  const [authDeepLinkReady, setAuthDeepLinkReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -67,6 +81,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return;
         }
 
+        const recoveryMode = await isPasswordRecoveryMode();
+
+        if (recoveryMode) {
+          setSession(null);
+          setUser(null);
+
+          try {
+            await supabase.auth.signOut({ scope: "local" });
+          } catch (error) {
+            console.error("AUTH INIT: RECOVERY SIGN OUT ERROR:", error);
+          }
+
+          await setPasswordRecoveryMode(false);
+
+          if (!mounted) {
+            return;
+          }
+
+          setSession(null);
+          setUser(null);
+          setPasswordRecoveryActive(false);
+
+          return;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
       } catch (error) {
@@ -76,8 +115,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return;
         }
 
-        // Si no podemos comprobar la sesión,
-        // tratamos al usuario como no autenticado.
         setSession(null);
         setUser(null);
       } finally {
@@ -91,8 +128,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) {
+        return;
+      }
+
+      if (event === "PASSWORD_RECOVERY") {
         return;
       }
 
@@ -158,6 +199,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (error) {
       throw error;
     }
+
+    setSession(null);
+    setUser(null);
   };
 
   const resendConfirmationEmail = async (email: string): Promise<void> => {
@@ -176,16 +220,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const resetPassword = async (email: string): Promise<void> => {
+    const redirectTo = Linking.createURL("auth/reset-password");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const updatePassword = async (password: string): Promise<void> => {
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         session,
         user,
         loading,
+
+        passwordRecoveryActive,
+        setPasswordRecoveryActive,
+
+        authDeepLinkReady,
+        setAuthDeepLinkReady,
+
         signUp,
         signIn,
         signOut,
         resendConfirmationEmail,
+        resetPassword,
+        updatePassword,
       }}
     >
       {children}
