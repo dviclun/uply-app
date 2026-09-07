@@ -6,6 +6,7 @@ export * from "./DateField";
 export * from "./EmptyState";
 export * from "./ErrorState";
 export * from "./FloatingActionButton";
+export * from "./IconButton";
 export * from "./LoadingScreen";
 export * from "./LoadingState";
 export * from "./ProgressBar";

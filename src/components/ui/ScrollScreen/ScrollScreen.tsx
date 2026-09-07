@@ -18,13 +18,21 @@ const styles = StyleSheet.create({
   },
 });
 
-export function ScrollScreen({ children, style }: ScrollScreenProps) {
+export function ScrollScreen({
+  children,
+  style,
+  stickyHeaderIndices,
+  onScroll,
+}: ScrollScreenProps) {
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={[styles.content, style]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={stickyHeaderIndices}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
       >
         {children}
       </ScrollView>

@@ -1,11 +1,53 @@
-import { Text } from "@/components/ui";
+import { StyleSheet, View } from "react-native";
 
-export function DashboardHeader() {
+import { IconButton, Text } from "@/components/ui";
+import { spacing } from "@/theme";
+import { AccountMenu } from "../AccountMenu";
+
+type DashboardHeaderProps = {
+  menuVisible: boolean;
+  onMenuPress: () => void;
+  onSignOut: () => void;
+};
+
+export function DashboardHeader({
+  menuVisible,
+  onMenuPress,
+  onSignOut,
+}: DashboardHeaderProps) {
   return (
     <>
-      <Text variant="h1">Hola 👋</Text>
+      <View style={styles.container}>
+        <View style={styles.textContainer}>
+          <Text variant="h1" style={{ paddingBottom: spacing.md }}>
+            Hola 👋
+          </Text>
 
-      <Text tone="secondary">Este es tu resumen de hoy</Text>
+          <Text tone="secondary">Este es tu resumen de hoy</Text>
+        </View>
+
+        <IconButton
+          name={menuVisible ? "close" : "menu"}
+          onPress={onMenuPress}
+          accessibilityLabel={menuVisible ? "Cerrar menú" : "Abrir menú"}
+        />
+      </View>
+
+      <AccountMenu
+        visible={menuVisible}
+        onClose={onMenuPress}
+        onSignOut={onSignOut}
+      />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  textContainer: {
+    flex: 1,
+  },
+});
