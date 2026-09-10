@@ -21,9 +21,12 @@ import {
   useTransaction,
   useUpdateTransaction,
 } from "@/hooks";
-import { useToast } from "@/providers";
+import { getLocale, Language } from "@/i18n";
+import { useCurrency, useToast } from "@/providers";
+import { formatCurrency } from "@/utils";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useLocalSearchParams } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { CategorySelector } from "../../components/CategorySelector";
 import { TransactionFormScreenProps } from "./types";
 
@@ -33,6 +36,10 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
     type?: TransactionType;
   }>();
   const isEditMode = mode === "edit";
+
+  const { currency } = useCurrency();
+  const { i18n } = useTranslation();
+  const locale = getLocale(i18n.language as Language);
 
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
@@ -175,7 +182,7 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
         <Stack spacing="lg">
           <TextField
             label="Importe"
-            placeholder="0,00 €"
+            placeholder={formatCurrency(0, { currency, locale })}
             keyboardType="decimal-pad"
             value={amount}
             onChangeText={setAmount}

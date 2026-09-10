@@ -1,9 +1,15 @@
 import { Card, Stack, Text } from "@/components/ui";
 import { useDashboard } from "@/hooks";
+import { getLocale, Language } from "@/i18n";
+import { useCurrency } from "@/providers";
 import { formatCurrency } from "@/utils";
+import { useTranslation } from "react-i18next";
 
 export function BalanceCard() {
   const { data: dashboard } = useDashboard();
+  const { currency } = useCurrency();
+  const { i18n } = useTranslation();
+  const locale = getLocale(i18n.language as Language);
 
   if (!dashboard) {
     return null;
@@ -17,7 +23,9 @@ export function BalanceCard() {
         </Text>
 
         <Text variant="h1">
-          <Text variant="h1">{formatCurrency(dashboard.balance)}</Text>
+          <Text variant="h1">
+            {formatCurrency(dashboard.balance, { currency, locale })}
+          </Text>
         </Text>
       </Stack>
     </Card>

@@ -2,11 +2,17 @@ import { Card, Stack, Text } from "@/components/ui";
 
 import { formatCurrency } from "@/utils";
 
+import { getLocale, Language } from "@/i18n";
+import { useCurrency } from "@/providers";
+import { useTranslation } from "react-i18next";
 import { TransactionSummaryCardProps } from "./types";
 
 export function TransactionSummaryCard({
   transaction,
 }: TransactionSummaryCardProps) {
+  const { currency } = useCurrency();
+  const { i18n } = useTranslation();
+  const locale = getLocale(i18n.language as Language);
   const signedAmount =
     transaction.type === "expense" ? -transaction.amount : transaction.amount;
   return (
@@ -20,6 +26,8 @@ export function TransactionSummaryCard({
         >
           {formatCurrency(signedAmount, {
             showSign: true,
+            currency,
+            locale,
           })}
         </Text>
       </Stack>

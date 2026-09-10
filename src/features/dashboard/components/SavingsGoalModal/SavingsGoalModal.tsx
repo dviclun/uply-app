@@ -63,7 +63,7 @@ export function SavingsGoalModal({
             </Text>
 
             <TextField
-              label="Objetivo (€)"
+              label="Objetivo"
               keyboardType="numeric"
               value={target}
               onChangeText={handleChange}

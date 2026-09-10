@@ -8,14 +8,19 @@ import {
 } from "@/components/ui";
 import { Divider } from "@/components/ui/Divider";
 import { useDashboard, useSavingsGoal } from "@/hooks";
-import { useToast } from "@/providers";
+import { getLocale, Language } from "@/i18n";
+import { useCurrency, useToast } from "@/providers";
 import { capitalize, formatCurrency, formatSavingsGoalPeriod } from "@/utils";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { SavingsGoalModal } from "../SavingsGoalModal/SavingsGoalModal";
 
 export function SavingGoalCard() {
   const { data, createFirstGoal, updateNextGoalTarget } = useSavingsGoal();
   const { data: dashboard } = useDashboard();
+  const { currency } = useCurrency();
+  const { i18n } = useTranslation();
+  const locale = getLocale(i18n.language as Language);
   const { showToast } = useToast();
 
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
@@ -82,10 +87,14 @@ export function SavingGoalCard() {
             {formatCurrency(dashboard.savingsGoal.current, {
               decimals: false,
               showSign: dashboard.savingsGoal.current < 0,
+              currency,
+              locale,
             })}
             {" de "}
             {formatCurrency(dashboard.savingsGoal.target, {
               decimals: false,
+              currency,
+              locale,
             })}
           </Text>
 
@@ -95,6 +104,8 @@ export function SavingGoalCard() {
             {remaining > 0
               ? `Te quedan ${formatCurrency(remaining, {
                   decimals: false,
+                  currency,
+                  locale,
                 })} para conseguirlo 💪`
               : `¡Estás superando tu objetivo, sigue así! 🎉`}
           </Text>
@@ -112,6 +123,8 @@ export function SavingGoalCard() {
               <Text variant="h4">
                 {formatCurrency(data.nextGoal.target, {
                   decimals: false,
+                  currency,
+                  locale,
                 })}
               </Text>
             </Stack>

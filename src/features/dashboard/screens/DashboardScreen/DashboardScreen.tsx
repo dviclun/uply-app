@@ -8,6 +8,7 @@ import {
 } from "@/components/ui";
 
 import { useAuth } from "@/providers";
+import { router } from "expo-router";
 import { BalanceCard } from "../../components/BalanceCard";
 import { DashboardHeader } from "../../components/DashboardHeader";
 import { InsightCard } from "../../components/InsightCard";
@@ -66,6 +67,10 @@ export function DashboardScreen() {
               menuVisible={menuVisible}
               onMenuPress={() => setMenuVisible((visible) => !visible)}
               onSignOut={handleSignOutPress}
+              onSettings={() => {
+                setMenuVisible(false);
+                router.push("/settings");
+              }}
             />
 
             <BalanceCard />

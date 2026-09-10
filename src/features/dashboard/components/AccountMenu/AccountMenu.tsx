@@ -7,10 +7,16 @@ import { tokens } from "@/theme";
 type AccountMenuProps = {
   visible: boolean;
   onClose: () => void;
+  onSettings: () => void;
   onSignOut: () => void;
 };
 
-export function AccountMenu({ visible, onClose, onSignOut }: AccountMenuProps) {
+export function AccountMenu({
+  visible,
+  onClose,
+  onSettings,
+  onSignOut,
+}: AccountMenuProps) {
   if (!visible) {
     return null;
   }
@@ -20,6 +26,17 @@ export function AccountMenu({ visible, onClose, onSignOut }: AccountMenuProps) {
       <Pressable style={styles.backdrop} onPress={onClose} />
 
       <View style={styles.menu}>
+        <Pressable style={styles.item} onPress={onSettings}>
+          <Ionicons
+            name="settings-outline"
+            size={21}
+            color={tokens.text.primary}
+          />
+
+          <Text>Ajustes</Text>
+        </Pressable>
+
+        <View style={styles.separator} />
         <Pressable style={styles.item} onPress={onSignOut}>
           <Ionicons
             name="log-out-outline"

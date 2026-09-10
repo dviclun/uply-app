@@ -12,14 +12,22 @@ import {
   TextField,
 } from "@/components/ui";
 import { useAuth, useCheckUsernameAvailability } from "@/hooks";
+import { getLocale, Language } from "@/i18n";
+import { useCurrency } from "@/providers";
 import { colors, spacing } from "@/theme";
+import { formatCurrency } from "@/utils";
 import { getAuthErrorMessage } from "@/utils/authErrors";
+import { useTranslation } from "react-i18next";
 
 type RegisterStep = 1 | 2 | 3;
 
 export function RegisterScreen() {
   const { signUp } = useAuth();
   const checkUsernameAvailability = useCheckUsernameAvailability();
+
+  const { currency } = useCurrency();
+  const { i18n } = useTranslation();
+  const locale = getLocale(i18n.language as Language);
 
   const [step, setStep] = useState<RegisterStep>(1);
 
@@ -199,7 +207,7 @@ export function RegisterScreen() {
                       value={initialBalance}
                       onChangeText={setInitialBalance}
                       keyboardType="decimal-pad"
-                      placeholder="0,00 €"
+                      placeholder={formatCurrency(0, { currency, locale })}
                     />
                   </Stack>
 

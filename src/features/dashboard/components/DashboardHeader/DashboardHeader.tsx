@@ -8,12 +8,14 @@ type DashboardHeaderProps = {
   menuVisible: boolean;
   onMenuPress: () => void;
   onSignOut: () => void;
+  onSettings: () => void;
 };
 
 export function DashboardHeader({
   menuVisible,
   onMenuPress,
   onSignOut,
+  onSettings,
 }: DashboardHeaderProps) {
   return (
     <>
@@ -36,6 +38,7 @@ export function DashboardHeader({
       <AccountMenu
         visible={menuVisible}
         onClose={onMenuPress}
+        onSettings={onSettings}
         onSignOut={onSignOut}
       />
     </>

@@ -3,7 +3,10 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { Text } from "@/components/ui";
 
+import { getLocale, Language } from "@/i18n";
+import { useCurrency } from "@/providers";
 import { formatCurrency, formatDate, strengthenColor } from "@/utils";
+import { useTranslation } from "react-i18next";
 import { TransactionItemProps } from "./types";
 
 const styles = StyleSheet.create({
@@ -27,12 +30,17 @@ export function TransactionItem({
   category,
   ...props
 }: TransactionItemProps) {
+  const { currency } = useCurrency();
+  const { i18n } = useTranslation();
+  const locale = getLocale(i18n.language as Language);
   const amountTone = transaction.type === "income" ? "success" : "danger";
   const signedAmount =
     transaction.type === "expense" ? -transaction.amount : transaction.amount;
 
   const amount = formatCurrency(signedAmount, {
     showSign: true,
+    currency,
+    locale,
   });
   const date = formatDate(transaction.date);
   return (
