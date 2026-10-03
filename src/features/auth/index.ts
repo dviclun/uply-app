@@ -5,3 +5,4 @@ export { EmailConfirmationScreen } from "./screens/EmailConfirmationScreen";
 export { LoginScreen } from "./screens/LoginScreen";
 export { RegisterScreen } from "./screens/RegisterScreen";
 
+export { ChangePasswordModal } from "./components/ChangePasswordModal";

@@ -2,15 +2,28 @@ import { setLanguage, type Language } from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 
-import { Container, Screen, ScreenHeader, Stack, Text } from "@/components/ui";
+import {
+  Button,
+  ConfirmationModal,
+  Container,
+  Screen,
+  ScreenHeader,
+  Stack,
+  Text,
+  TextField,
+} from "@/components/ui";
+import { ChangePasswordModal } from "@/features/auth";
+import { useAuth } from "@/hooks";
 
 import { Currency } from "@/currency";
-import { useCurrency } from "@/providers";
+import { useCurrency, useToast } from "@/providers";
 import { tokens } from "@/theme";
+import { getAuthErrorMessage } from "@/utils/authErrors";
 import { useState } from "react";
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
+  const { showToast } = useToast();
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [languageLoading, setLanguageLoading] = useState(false);
 
@@ -19,6 +32,170 @@ export function SettingsScreen() {
   const { currency: currentCurrency, setCurrency } = useCurrency();
 
   const currentLanguage = i18n.language as Language;
+
+  const [changePasswordModalVisible, setChangePasswordModalVisible] =
+    useState(false);
+
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+
+  const [changePasswordError, setChangePasswordError] = useState<string | null>(
+    null,
+  );
+
+  const [changePasswordCodeStep, setChangePasswordCodeStep] = useState(false);
+
+  const [pendingCurrentPassword, setPendingCurrentPassword] = useState("");
+
+  const [pendingNewPassword, setPendingNewPassword] = useState("");
+
+  const [deleteAccountModalVisible, setDeleteAccountModalVisible] =
+    useState(false);
+  const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(
+    null,
+  );
+
+  const [deleteAccountPassword, setDeleteAccountPassword] = useState("");
+
+  const [
+    deleteAccountPasswordModalVisible,
+    setDeleteAccountPasswordModalVisible,
+  ] = useState(false);
+
+  const {
+    user,
+    changePassword,
+    reauthenticate,
+    updatePasswordAfterReauthentication,
+    deleteAccount,
+    verifyCurrentPassword,
+  } = useAuth();
+
+  const handleDeleteAccount = () => {
+    setDeleteAccountError(null);
+    setDeleteAccountModalVisible(true);
+  };
+
+  const handleConfirmDeleteAccount = () => {
+    setDeleteAccountModalVisible(false);
+    setDeleteAccountError(null);
+    setDeleteAccountPassword("");
+    setDeleteAccountPasswordModalVisible(true);
+  };
+
+  const handleChangePassword = async (
+    currentPassword: string,
+    newPassword: string,
+  ) => {
+    try {
+      setChangePasswordLoading(true);
+      setChangePasswordError(null);
+
+      await changePassword(currentPassword, newPassword);
+
+      showToast({
+        variant: "success",
+        message: "Contraseña cambiada correctamente.",
+      });
+
+      setChangePasswordModalVisible(false);
+      setChangePasswordCodeStep(false);
+    } catch (error) {
+      const authError = error as {
+        code?: string;
+        message?: string;
+      };
+
+      if (authError.code === "reauthentication_needed") {
+        try {
+          setPendingCurrentPassword(currentPassword);
+          setPendingNewPassword(newPassword);
+
+          await reauthenticate();
+
+          setChangePasswordCodeStep(true);
+          return;
+        } catch (reauthError) {
+          console.error("PASSWORD REAUTHENTICATION ERROR:", reauthError);
+
+          setChangePasswordError(
+            "No se ha podido enviar el código de verificación.",
+          );
+        }
+      }
+
+      setChangePasswordError(getAuthErrorMessage(error));
+    } finally {
+      setChangePasswordLoading(false);
+    }
+  };
+
+  const handleSubmitPasswordChangeCode = async (code: string) => {
+    try {
+      setChangePasswordLoading(true);
+      setChangePasswordError(null);
+
+      await updatePasswordAfterReauthentication(
+        pendingCurrentPassword,
+        pendingNewPassword,
+        code,
+      );
+
+      showToast({
+        variant: "success",
+        message: "Contraseña cambiada correctamente.",
+      });
+
+      setChangePasswordModalVisible(false);
+      setChangePasswordCodeStep(false);
+      setPendingCurrentPassword("");
+      setPendingNewPassword("");
+    } catch (error) {
+      const authError = error as {
+        message?: string;
+      };
+
+      if (
+        authError.message ===
+        "Current password required when setting new password."
+      ) {
+        setChangePasswordCodeStep(false);
+        setChangePasswordError(getAuthErrorMessage(error));
+
+        return;
+      }
+
+      setChangePasswordError(getAuthErrorMessage(error));
+    } finally {
+      setChangePasswordLoading(false);
+    }
+  };
+
+  const handleVerifyDeleteAccountPassword = async () => {
+    if (!deleteAccountPassword) {
+      setDeleteAccountError("Introduce tu contraseña actual.");
+      return;
+    }
+
+    if (!user?.email) {
+      setDeleteAccountError("No se ha podido verificar la cuenta.");
+      return;
+    }
+
+    try {
+      setDeleteAccountLoading(true);
+      setDeleteAccountError(null);
+
+      await verifyCurrentPassword(user.email, deleteAccountPassword);
+
+      setDeleteAccountPasswordModalVisible(false);
+      await deleteAccount();
+    } catch (error) {
+      setDeleteAccountError("Contraseña incorrecta.");
+    } finally {
+      setDeleteAccountLoading(false);
+    }
+  };
 
   const handleLanguageChange = async (language: Language) => {
     try {
@@ -91,13 +268,24 @@ export function SettingsScreen() {
               <Text variant="h3">{t("settings.security")}</Text>
 
               <View style={styles.section}>
-                <Pressable style={styles.row}>
+                <Pressable
+                  style={styles.row}
+                  onPress={() => {
+                    setChangePasswordError(null);
+                    setChangePasswordModalVisible(true);
+                  }}
+                >
                   <Text>{t("settings.changePassword")}</Text>
                 </Pressable>
 
                 <View style={styles.separator} />
 
-                <Pressable style={styles.row}>
+                <Pressable
+                  style={styles.row}
+                  onPress={() => {
+                    handleDeleteAccount();
+                  }}
+                >
                   <Text tone="danger">{t("settings.deleteAccount")}</Text>
                 </Pressable>
               </View>
@@ -232,6 +420,108 @@ export function SettingsScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+      <ChangePasswordModal
+        visible={changePasswordModalVisible}
+        email={user?.email}
+        loading={changePasswordLoading}
+        error={changePasswordError}
+        codeStep={changePasswordCodeStep}
+        onChangePassword={handleChangePassword}
+        onSubmitCode={handleSubmitPasswordChangeCode}
+        onClose={() => {
+          if (changePasswordLoading) {
+            return;
+          }
+
+          setChangePasswordModalVisible(false);
+          setChangePasswordCodeStep(false);
+          setChangePasswordError(null);
+          setPendingCurrentPassword("");
+          setPendingNewPassword("");
+        }}
+      />
+      <ConfirmationModal
+        visible={deleteAccountModalVisible}
+        title={t("settings.deleteAccount")}
+        message="Esta acción es permanente. Se eliminarán tu cuenta y todos tus datos."
+        confirmText="Eliminar"
+        loading={deleteAccountLoading}
+        error={deleteAccountError}
+        onClose={() => {
+          if (deleteAccountLoading) {
+            return;
+          }
+
+          setDeleteAccountModalVisible(false);
+          setDeleteAccountError(null);
+        }}
+        onConfirm={handleConfirmDeleteAccount}
+      />
+      <Modal
+        visible={deleteAccountPasswordModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          if (deleteAccountLoading) {
+            return;
+          }
+
+          setDeleteAccountPasswordModalVisible(false);
+          setDeleteAccountPassword("");
+          setDeleteAccountError(null);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modal}>
+            <Stack spacing="lg">
+              <Text variant="h3" textAlign="center">
+                Confirmar contraseña
+              </Text>
+
+              <Text tone="secondary" textAlign="center">
+                Introduce tu contraseña actual para continuar.
+              </Text>
+
+              <TextField
+                label="Contraseña actual"
+                secureTextEntry
+                value={deleteAccountPassword}
+                onChangeText={setDeleteAccountPassword}
+                editable={!deleteAccountLoading}
+                error={deleteAccountError ?? undefined}
+              />
+
+              <Stack direction="row" spacing="md">
+                <Button
+                  variant="secondary"
+                  onPress={() => {
+                    if (deleteAccountLoading) {
+                      return;
+                    }
+
+                    setDeleteAccountPasswordModalVisible(false);
+                    setDeleteAccountPassword("");
+                    setDeleteAccountError(null);
+                  }}
+                  disabled={deleteAccountLoading}
+                  flex={1}
+                >
+                  Cancelar
+                </Button>
+
+                <Button
+                  onPress={handleVerifyDeleteAccountPassword}
+                  loading={deleteAccountLoading}
+                  disabled={deleteAccountLoading}
+                  flex={1}
+                >
+                  Continuar
+                </Button>
+              </Stack>
+            </Stack>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -295,5 +585,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  deleteAccountActions: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: 20,
   },
 });

@@ -41,9 +41,21 @@ type AuthContextValue = {
   signUp: (data: SignUpData) => Promise<SignUpResult>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
+  verifyCurrentPassword: (email: string, password: string) => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
+  reauthenticate: () => Promise<void>;
+  updatePasswordAfterReauthentication: (
+    currentPassword: string,
+    newPassword: string,
+    nonce: string,
+  ) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -204,6 +216,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
   };
 
+  const deleteAccount = async (): Promise<void> => {
+    const { error } = await supabase.functions.invoke("delete-account");
+
+    if (error) {
+      throw error;
+    }
+
+    await supabase.auth.signOut({ scope: "local" });
+
+    setSession(null);
+    setUser(null);
+  };
+
+  const verifyCurrentPassword = async (
+    email: string,
+    currentPassword: string,
+  ): Promise<void> => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
   const resendConfirmationEmail = async (email: string): Promise<void> => {
     const redirectTo = Linking.createURL("auth/callback");
 
@@ -242,6 +281,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+      current_password: currentPassword,
+    });
+
+    if (error) throw error;
+  };
+
+  const reauthenticate = async (): Promise<void> => {
+    const { error } = await supabase.auth.reauthenticate();
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const updatePasswordAfterReauthentication = async (
+    currentPassword: string,
+    newPassword: string,
+    nonce: string,
+  ): Promise<void> => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+      current_password: currentPassword,
+      nonce,
+    });
+
+    if (error) throw error;
+  };
   return (
     <AuthContext.Provider
       value={{
@@ -258,9 +330,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signUp,
         signIn,
         signOut,
+        deleteAccount,
+        verifyCurrentPassword,
         resendConfirmationEmail,
         resetPassword,
         updatePassword,
+        changePassword,
+        reauthenticate,
+        updatePasswordAfterReauthentication,
       }}
     >
       {children}
