@@ -510,12 +510,13 @@ export function SettingsScreen() {
                 </Button>
 
                 <Button
+                  variant="danger"
                   onPress={handleVerifyDeleteAccountPassword}
                   loading={deleteAccountLoading}
                   disabled={deleteAccountLoading}
                   flex={1}
                 >
-                  Continuar
+                  Eliminar
                 </Button>
               </Stack>
             </Stack>

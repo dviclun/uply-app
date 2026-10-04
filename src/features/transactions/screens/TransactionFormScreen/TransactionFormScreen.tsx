@@ -251,6 +251,11 @@ export function TransactionFormScreen({ mode }: TransactionFormScreenProps) {
             />
           )}
 
+          <Text tone="secondary" variant="caption">
+            Las transacciones anteriores al último ajuste de balance no afectan
+            al balance actual.
+          </Text>
+
           {error && <Text tone="danger">{error}</Text>}
 
           <Button

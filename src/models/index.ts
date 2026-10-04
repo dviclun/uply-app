@@ -1,3 +1,4 @@
+export * from "./balanceAdjustment";
 export * from "./category";
 export * from "./createTransaction";
 export * from "./dashboard";

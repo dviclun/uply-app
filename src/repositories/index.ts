@@ -1,3 +1,4 @@
+export * from "./balanceAdjustment.repository";
 export * from "./category.repository";
 export * from "./dashboard.repository";
 export * from "./profile.repository";

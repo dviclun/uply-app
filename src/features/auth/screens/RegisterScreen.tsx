@@ -209,6 +209,12 @@ export function RegisterScreen() {
                       keyboardType="decimal-pad"
                       placeholder={formatCurrency(0, { currency, locale })}
                     />
+
+                    <Text tone="secondary">
+                      Introduce un balance aproximado para empezar. No te
+                      preocupes si no es exacto, podrás ajustarlo más adelante
+                      desde el Dashboard.
+                    </Text>
                   </Stack>
 
                   <View>

@@ -7,12 +7,14 @@ type IconButtonProps = {
   name: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
   accessibilityLabel: string;
+  size?: number;
 };
 
 export function IconButton({
   name,
   onPress,
   accessibilityLabel,
+  size,
 }: IconButtonProps) {
   return (
     <Pressable
@@ -21,7 +23,7 @@ export function IconButton({
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <Ionicons name={name} size={27} color={tokens.text.primary} />
+      <Ionicons name={name} size={size ?? 27} color={tokens.text.primary} />
     </Pressable>
   );
 }

@@ -180,4 +180,34 @@ export class TransactionRepository {
       expense,
     };
   }
+
+  async getSummaryAfter(
+  date: Date,
+): Promise<{ income: number; expense: number }> {
+  const userId = await this.getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("amount, type")
+    .eq("user_id", userId)
+    .gt("date", date.toISOString())
+    .lte("date", new Date().toISOString());
+
+  if (error) throw error;
+
+  let income = 0;
+  let expense = 0;
+
+  for (const transaction of data ?? []) {
+    const amount = Number(transaction.amount);
+
+    if (transaction.type === "income") {
+      income += amount;
+    } else {
+      expense += amount;
+    }
+  }
+
+  return { income, expense };
+}
 }

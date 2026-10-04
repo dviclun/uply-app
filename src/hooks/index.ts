@@ -8,4 +8,5 @@ export * from "./useDeleteTransaction";
 export * from "./useFonts";
 export * from "./useSavingGoals";
 export * from "./useTransactions";
+export * from "./useUpdateBalance";
 export * from "./useUpdateTransaction";

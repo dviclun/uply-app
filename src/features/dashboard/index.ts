@@ -1,4 +1,5 @@
 export * from "./components/AccountMenu";
+export * from "./components/BalanceAdjustmentModal";
 export * from "./components/BalanceCard";
 export * from "./components/DashboardHeader";
 export * from "./components/InsightCard";

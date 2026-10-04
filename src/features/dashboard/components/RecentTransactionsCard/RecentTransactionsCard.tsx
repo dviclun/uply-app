@@ -40,14 +40,7 @@ export function RecentTransactionsCard() {
         </View>
 
         {transactions.length === 0 ? (
-          <EmptyState
-            message="Añade tu primer ingreso o gasto para empezar a controlar tus finanzas."
-            action={
-              <Button onPress={handleCreateTransaction}>
-                Añadir movimiento
-              </Button>
-            }
-          />
+          <EmptyState message="Añade tu primer ingreso o gasto para empezar a controlar tus finanzas." />
         ) : (
           transactions.map((transaction) => {
             const category = transaction.categoryId
@@ -65,6 +58,7 @@ export function RecentTransactionsCard() {
             );
           })
         )}
+        <Button onPress={handleCreateTransaction}>Añadir movimiento</Button>
       </Stack>
     </Card>
   );
